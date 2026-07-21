@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aistudio.artsalespro.gldnln",
+      "sha256_cert_fingerprints": [
+        "BE:3B:38:E4:D9:C0:53:0C:75:D0:75:FC:34:58:88:92:F8:40:E3:7E:91:F4:2B:08:30:55:4F:04:7F:94:4B:84"
+      ]
+    }
+  }
+]
