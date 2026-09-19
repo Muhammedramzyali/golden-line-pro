@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع الطلب - عالم الديكور | Golden Line</title>
+    
+    <!-- 
+      ========================================================
+      رسالة لوكيل التصميم (AI UI Agent):
+      أنت مسؤول عن تصميم هذه الصفحة بالكامل باستخدام Tailwind CSS أو CSS مخصص.
+      تم تجهيز الهيكل البرمجي (JavaScript) لجلب البيانات بنجاح.
+      يُمنع منعاً باتاً حذف أو تعديل كود الـ JavaScript الموجود في الأسفل.
+      مهمتك هي تصميم العناصر ذات الـ IDs المحددة (مثل: order-summary, order-items) 
+      وجعلها متجاوبة (Responsive) وتليق بهوية تجارية احترافية.
+      ========================================================
+    -->
+    
+    <style>
+        /* إخفاء العناصر برمجياً قبل تحميلها */
+        .hidden { display: none !important; }
+        
+        /* يمكنك (أيها الوكيل) مسح هذا التنسيق المبدئي واستبداله بتصميمك */
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f9fafb; margin: 0; padding: 20px; text-align: right; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .error { color: #dc2626; background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #f87171; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- حالة التحميل -->
+    <div id="loading-state" class="card">
+        <p>جاري جلب بيانات الطلب...</p>
+    </div>
+
+    <!-- رسائل الخطأ أو الحظر -->
+    <div id="error-state" class="hidden error">
+        <p id="error-message"></p>
+    </div>
+
+    <!-- المحتوى الرئيسي (يظهر بعد جلب البيانات) -->
+    <div id="main-content" class="hidden">
+        
+        <!-- ملخص الطلب -->
+        <div id="order-summary" class="card">
+            <!-- سيتم حقن البيانات هنا عبر JS -->
+        </div>
+
+        <!-- حالة الطلب -->
+        <div id="order-status" class="card">
+            <!-- سيتم حقن البيانات هنا عبر JS -->
+        </div>
+
+        <!-- قائمة المنتجات -->
+        <div id="order-items" class="card">
+            <!-- سيتم حقن البيانات هنا عبر JS -->
+        </div>
+
+        <!-- البانر الدعائي لتطبيق الزبائن (صممه بشكل جذاب) -->
+        <div id="marketing-banner" class="card" style="background: #0f172a; color: white; text-align: center;">
+            <h3>حمل تطبيق Golden Line الآن!</h3>
+            <p>لتتبع طلباتك القادمة بشكل أسرع والحصول على عروض حصرية.</p>
+            <a href="#" style="display: inline-block; background: #22c55e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 10px;">تحميل من Google Play</a>
+        </div>
+        
+    </div>
+</div>
+
+<!-- المحرك البرمجي الأساسي (يُمنع تعديله من قبل وكيل التصميم) -->
+<script>
+    const SUPABASE_URL = "https://wvrpjrwezjpozkoqrcqc.supabase.co/rest/v1";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2cnBqcndlempwb3prb3FyY3FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5ODYzMTAsImV4cCI6MjA5ODU2MjMxMH0.bo_tjXL_XfC_5VeWu-fC5fKGg5Lcuk5zXahXiyeRhyg";
+    
+    // 1. استخراج رقم الطلب من الرابط
+    function getOrderIdFromUrl() {
+        const pathParts = window.location.pathname.split('/');
+        const id = pathParts[pathParts.length - 1];
+        return isNaN(id) || id === "" ? null : id;
+    }
+
+    // 2. نظام الحماية (Rate Limit - 3 محاولات باليوم)
+    function checkRateLimit(orderId) {
+        const today = new Date().toDateString();
+        let tracker = JSON.parse(localStorage.getItem('gl_order_tracker')) || { date: today, viewed: [] };
+
+        if (tracker.date !== today) {
+            tracker = { date: today, viewed: [] };
+        }
+
+        if (!tracker.viewed.includes(orderId)) {
+            tracker.viewed.push(orderId);
+        }
+
+        localStorage.setItem('gl_order_tracker', JSON.stringify(tracker));
+
+        if (tracker.viewed.length > 3) {
+            return false;
+        }
+        return true;
+    }
+
+    // 3. عرض الخطأ
+    function showError(message) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('main-content').classList.add('hidden');
+        const errorDiv = document.getElementById('error-state');
+        errorDiv.classList.remove('hidden');
+        document.getElementById('error-message').innerText = message;
+    }
+
+    // 4. جلب البيانات من السيرفر
+    async function fetchOrderData(orderId) {
+        try {
+            // جلب معلومات الطلب الأساسية
+            const orderRes = await fetch(`${SUPABASE_URL}/orders?id=eq.${orderId}&select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const orderData = await orderRes.json();
+
+            if (!orderData || orderData.length === 0) {
+                showError("عذراً، الطلب غير موجود أو تم إدخال رقم خاطئ.");
+                return;
+            }
+
+            const order = orderData[0];
+
+            // جلب منتجات الطلب
+            const itemsRes = await fetch(`${SUPABASE_URL}/order_items?order_id=eq.${orderId}&select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const itemsData = await itemsRes.json();
+
+            renderUI(order, itemsData);
+
+        } catch (error) {
+            showError("حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة لاحقاً.");
+            console.error(error);
+        }
+    }
+
+    // 5. عرض البيانات في الواجهة
+    function renderUI(order, items) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+
+        // ملخص الطلب
+        const depositText = order.deposit_amount > 0 ? `<br><small style="color:#16a34a">تم دفع عربون: ${order.deposit_amount} د.أ</small>` : '';
+        document.getElementById('order-summary').innerHTML = `
+            <h2 style="margin-top:0;">طلب رقم: #${order.id}</h2>
+            <p><strong>الإجمالي:</strong> ${order.final_total || order.price || '0'} د.أ ${depositText}</p>
+            <p><strong>رقم الهاتف:</strong> <span dir="ltr">${order.customer_phone || 'غير متوفر'}</span></p>
+        `;
+
+        // حالة الطلب والسجل (العميل سيقوم بتنسيقها بشكل أجمل)
+        document.getElementById('order-status').innerHTML = `
+            <h3>حالة الطلب</h3>
+            <p style="font-weight:bold; color:#2563eb;">سجل التحديثات:</p>
+            <div style="background:#f1f5f9; padding:10px; border-radius:8px; font-size:14px; max-height:200px; overflow-y:auto; white-space:pre-wrap;">${order.status || 'لا يوجد سجل حالياً'}</div>
+        `;
+
+        // المنتجات
+        let itemsHtml = `<h3>الأصناف (${items.length})</h3>`;
+        if (items.length > 0) {
+            items.forEach(item => {
+                itemsHtml += `
+                    <div style="border-bottom:1px solid #e2e8f0; padding-bottom:10px; margin-bottom:10px;">
+                        <strong>${item.product_name}</strong><br>
+                        <small>الكمية: ${item.quantity} | السعر: ${item.price} د.أ</small>
+                    </div>
+                `;
+            });
+        } else {
+            itemsHtml += `<p>لا توجد تفاصيل للأصناف.</p>`;
+        }
+        document.getElementById('order-items').innerHTML = itemsHtml;
+    }
+
+    // --- بدء التشغيل ---
+    const currentOrderId = getOrderIdFromUrl();
+    
+    if (!currentOrderId) {
+        showError("رابط غير صالح. يرجى التأكد من الرابط المرسل إليك.");
+    } else {
+        if (!checkRateLimit(currentOrderId)) {
+            showError("عذراً، لحماية خصوصية العملاء، لقد تجاوزت الحد المسموح به للاستعلام عن طلبات مختلفة اليوم.");
+        } else {
+            fetchOrderData(currentOrderId);
+        }
+    }
+</script>
+
+</body>
+</html>
