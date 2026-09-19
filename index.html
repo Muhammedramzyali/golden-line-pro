@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/">
     <title>نظام تتبع الشحنات والطلبات | بوابة التتبع للطلبات المثبتة مسبقا</title>
     
     <!-- Google Fonts & Material Symbols -->
@@ -372,24 +373,39 @@
     const SUPABASE_URL = "https://wvrpjrwezjpozkoqrcqc.supabase.co/rest/v1";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2cnBqcndlempwb3prb3FyY3FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5ODYzMTAsImV4cCI6MjA5ODU2MjMxMH0.bo_tjXL_XfC_5VeWu-fC5fKGg5Lcuk5zXahXiyeRhyg";
     
-    // 1. استخراج رقم الطلب من الرابط (يدعم الرابط المباشر /818 و معاملات البحث ?order=818 أو ?id=818)
-    // هام: لا نقوم بوضع رقم افتراضي عشوائي على الإطلاق إذا لم يُحدد رقم في الرابط
+    // 1. استخراج رقم الطلب من مسار الرابط (URL Path) بصيغة /order/1067
+    // قراءة الـ ID من الـ URL Path مباشرة دون الاعتماد على الـ Search Params
     function getOrderIdFromUrl() {
-        // فحص معاملات الرابط أولاً: ?order=... أو ?id=...
-        const urlParams = new URLSearchParams(window.location.search);
-        const queryOrder = urlParams.get('order') || urlParams.get('id');
-        if (queryOrder && !isNaN(queryOrder)) return queryOrder.trim();
+        const pathname = window.location.pathname || '';
 
-        // فحص مسار الرابط (Pathname) مثل /818
-        const pathParts = window.location.pathname.split('/').filter(p => p !== "");
-        if (pathParts.length > 0) {
-            const lastPart = pathParts[pathParts.length - 1];
-            if (!isNaN(lastPart) && lastPart !== "") return lastPart.trim();
+        // الأولوية الأولى: فحص صيغة المسار المباشر /order/1067 أو /order/GL-1067
+        const orderMatch = pathname.match(/\/order\/([a-zA-Z0-9_-]+)/i);
+        if (orderMatch && orderMatch[1]) {
+            const clean = orderMatch[1].replace(/^(gl-|GL-|order-|#)/, '').trim();
+            if (clean && !isNaN(clean)) return clean;
         }
 
-        // فحص الـ hash #818
-        const hash = window.location.hash.replace('#', '').trim();
-        if (!isNaN(hash) && hash !== "") return hash;
+        // فحص مسار الرابط المباشر /1067 (إذا كان المسار ينتهي برقم الطلب)
+        const pathParts = pathname.split('/').filter(p => p !== "");
+        if (pathParts.length > 0) {
+            const lastPart = pathParts[pathParts.length - 1].replace(/^(gl-|GL-|order-|#)/, '').trim();
+            if (!isNaN(lastPart) && lastPart !== "" && lastPart !== "order") return lastPart;
+        }
+
+        // توافق احتياطي في حال وجود روابط قديمة بصيغة ?order=1067 مع ترقيتها وتحويلها فوراً للمسار النظيف /order/1067
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryOrder = (urlParams.get('order') || urlParams.get('id') || '').replace(/^(gl-|GL-|order-|#)/, '').trim();
+        if (queryOrder && !isNaN(queryOrder)) {
+            window.history.replaceState({ orderId: queryOrder }, '', `/order/${queryOrder}`);
+            return queryOrder;
+        }
+
+        // فحص الهاش #1067 مع ترقيته لمسار /order/1067
+        const hash = window.location.hash.replace('#', '').replace(/^(gl-|GL-|order-|#)/, '').trim();
+        if (!isNaN(hash) && hash !== "") {
+            window.history.replaceState({ orderId: hash }, '', `/order/${hash}`);
+            return hash;
+        }
 
         // لا يوجد طلب في الرابط
         return null;
@@ -405,13 +421,10 @@
         if (homeDiv) {
             homeDiv.classList.remove('hidden');
         }
-        
-        const sessionBadge = document.getElementById('session-badge');
-        if (sessionBadge) sessionBadge.innerText = 'SESSION: #GL-DIRECT';
 
-        // تنظيف الرابط
-        if (window.location.search) {
-            window.history.pushState({}, '', window.location.pathname);
+        // إعادة مسار الرابط إلى الصفحة الرئيسية النظيفة /
+        if (window.location.pathname !== '/' || window.location.search) {
+            window.history.pushState({}, '', '/');
         }
 
         setTimeout(() => {
@@ -479,6 +492,11 @@
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
             });
             const itemsData = await itemsRes.json();
+
+            // ضمان تزامن شريط مسار المتصفح مع مسار الطلب /order/{id}
+            if (window.location.pathname !== `/order/${order.id}`) {
+                window.history.replaceState({ orderId: order.id }, '', `/order/${order.id}`);
+            }
 
             renderUI(order, itemsData || [], pageData);
 
@@ -1323,7 +1341,7 @@
             if (input) input.focus();
             return;
         }
-        window.history.pushState({}, '', `?order=${cleanId}`);
+        window.history.pushState({ orderId: cleanId }, '', `/order/${cleanId}`);
         fetchOrderData(cleanId);
     }
 
@@ -1337,8 +1355,7 @@
             showToast('يرجى إدخال رقم طلب صحيح');
             return;
         }
-        // تم إلغاء حظر الاستعلامات المتكررة بالكامل طالما أن أرقام الهواتف مموهة ومحمية
-        window.history.pushState({}, '', `?order=${cleanId}`);
+        window.history.pushState({ orderId: cleanId }, '', `/order/${cleanId}`);
         fetchOrderData(cleanId);
     }
 
@@ -1357,9 +1374,19 @@
         }
     })();
 
+    // الاستماع لأزرار التنقل والرجوع والتقدم في المتصفح
+    window.addEventListener('popstate', () => {
+        const orderId = getOrderIdFromUrl();
+        if (orderId) {
+            fetchOrderData(orderId);
+        } else {
+            showSearchHome();
+        }
+    });
+
     // --- بدء التشغيل الذكي ---
-    // إذا كان هناك رقم طلب في الرابط (مثل ?order=1067 أو /818) يتم جلبه مباشرة
-    // إذا لم يكن هناك رقم طلب، تعرض الشاشة الرئيسية بصندوق البحث الكبير دون استدعاء أي طلب عشوائي
+    // إذا كان هناك رقم طلب في الرابط (مثل /order/1067) يتم جلبه مباشرة
+    // إذا لم يكن هناك رقم طلب، تعرض الشاشة الرئيسية بصندوق البحث دون استدعاء أي طلب عشوائي
     const currentOrderId = getOrderIdFromUrl();
     
     if (currentOrderId) {
