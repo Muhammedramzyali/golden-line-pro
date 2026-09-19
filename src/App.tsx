@@ -20,8 +20,39 @@ import { ArtworkModal } from './components/ArtworkModal';
 import { SearchModal } from './components/SearchModal';
 import { Toast } from './components/Toast';
 
+function getOrderIdFromPath(): string | null {
+  if (typeof window === 'undefined') return null;
+  const pathname = window.location.pathname || '';
+
+  // 1. قراءة الـ ID من الـ URL Path مباشرة بصيغة /order/1067
+  const orderMatch = pathname.match(/\/order\/([a-zA-Z0-9_-]+)/i);
+  if (orderMatch && orderMatch[1]) {
+    return orderMatch[1].trim();
+  }
+
+  // 2. فحص المسار المباشر /1067
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length > 0) {
+    const last = parts[parts.length - 1];
+    if (last && last !== 'order') return last.trim();
+  }
+
+  // 3. توافق احتياطي مع معاملات البحث ?order=1067
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('order') || params.get('id');
+  if (q) return q.trim();
+
+  return null;
+}
+
 export default function App() {
-  const [activeCode, setActiveCode] = useState<string>('GL-4821');
+  const [activeCode, setActiveCode] = useState<string>(() => {
+    const fromPath = getOrderIdFromPath();
+    if (fromPath) {
+      return fromPath.startsWith('GL-') ? fromPath : `GL-${fromPath}`;
+    }
+    return 'GL-4821';
+  });
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('gl_theme_mode');
@@ -54,6 +85,29 @@ export default function App() {
     }
     localStorage.setItem('gl_theme_mode', isDark ? 'dark' : 'light');
   }, [isDark]);
+
+  // Synchronize URL Path /order/:id and handle browser back/forward buttons
+  useEffect(() => {
+    const id = getOrderIdFromPath();
+    if (id) {
+      const formatted = id.startsWith('GL-') ? id : `GL-${id}`;
+      setActiveCode(formatted);
+      const cleanNum = id.replace(/^(gl-|GL-|order-|#)/, '');
+      if (window.location.pathname !== `/order/${cleanNum}`) {
+        window.history.replaceState({ orderId: cleanNum }, '', `/order/${cleanNum}`);
+      }
+    }
+
+    const handlePopState = () => {
+      const poppedId = getOrderIdFromPath();
+      if (poppedId) {
+        const formatted = poppedId.startsWith('GL-') ? poppedId : `GL-${poppedId}`;
+        setActiveCode(formatted);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const toggleTheme = () => {
     setIsDark((prev) => !prev);
@@ -170,6 +224,8 @@ export default function App() {
         onClose={() => setShowSearchModal(false)}
         onSelectShipment={(code) => {
           setActiveCode(code);
+          const cleanNum = code.replace(/^(gl-|GL-|order-|#)/, '');
+          window.history.pushState({ orderId: cleanNum }, '', `/order/${cleanNum}`);
           showToast(`تم تحميل بيانات الشحنة #${code}`);
         }}
         currentCode={currentShipment.trackingCode}
