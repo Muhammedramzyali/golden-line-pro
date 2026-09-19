@@ -1,12 +1,32 @@
 [
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.aistudio.artsalespro.gldnln",
-      "sha256_cert_fingerprints": [
-        "BE:3B:38:E4:D9:C0:53:0C:75:D0:75:FC:34:58:88:92:F8:40:E3:7E:91:F4:2B:08:30:55:4F:04:7F:94:4B:84"
-      ]
-    }
-  }
+{
+"relation": ["delegate_permission/common.handle_all_urls"],
+"target": {
+"namespace": "android_app",
+"package_name": "com.aistudio.artsalespro.gldnln",
+"sha256_cert_fingerprints": [
+"BE:3B:38:E4:D9:C0:53:0C:75:D0:75:FC:34:58:88:92:F8:40:E3:7E:91:F4:2B:08:30:55:4F:04:7F:94:4B:84"
+]
+}
+},
+{
+"relation": ["delegate_permission/common.handle_all_urls"],
+"target": {
+"namespace": "android_app",
+"package_name": "com.aistudio.artsalespro.admin.gldnln",
+"sha256_cert_fingerprints": [
+"BB:56:12:06:17:82:62:74:65:31:C9:90:35:BF:1D:71:C5:AC:9E:A9:F9:B3:AE:40:AF:85:1B:86:05:89:78:02"
+]
+}
+},
+{
+"relation": ["delegate_permission/common.handle_all_urls"],
+"target": {
+"namespace": "android_app",
+"package_name": "com.goldenline.captain",
+"sha256_cert_fingerprints": [
+"12:9C:4B:96:6A:D2:29:44:68:13:05:30:80:CE:C1:C5:C8:A8:42:60:CD:11:82:E6:B6:BA:DD:2B:14:59:8A:7F"
+]
+}
+}
 ]
