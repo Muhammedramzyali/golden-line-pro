@@ -13,7 +13,7 @@ export const ShipmentHero: React.FC<ShipmentHeroProps> = ({
   onOpenLiveMap,
 }) => {
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#ffffff] via-[#f7f4ec] to-[#eee8da] dark:from-[#211c13] dark:via-[#19150e] dark:to-[#141009] border border-[#ded5c2] dark:border-[#382f1f] p-5 sm:p-7 shadow-lg transition-colors duration-300">
+    <section id="shipment-hero-section" className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#ffffff] via-[#f7f4ec] to-[#eee8da] dark:from-[#211c13] dark:via-[#19150e] dark:to-[#141009] border border-[#ded5c2] dark:border-[#382f1f] p-5 sm:p-7 shadow-lg transition-colors duration-300 scroll-mt-24">
       <div className="absolute -top-16 left-10 w-48 h-48 bg-gold-500/10 rounded-full blur-2xl pointer-events-none" />
 
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
@@ -80,8 +80,45 @@ export const ShipmentHero: React.FC<ShipmentHeroProps> = ({
         </div>
       </div>
 
+      {/* أزرار التنقل السريع المطلوبة في بطاقة الطلب */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-4 mt-5 border-t border-[#e5ddce] dark:border-[#2f2719]">
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('timeline-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              el.classList.add('ring-2', 'ring-gold-500', 'transition-all');
+              setTimeout(() => el.classList.remove('ring-2', 'ring-gold-500'), 1500);
+            }
+          }}
+          className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-gold-500/20 via-gold-500/15 to-gold-500/10 hover:from-gold-500/30 hover:to-gold-500/20 text-gold-700 dark:text-gold-300 font-bold text-xs sm:text-sm border border-gold-500/40 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-[20px] text-gold-500">local_shipping</span>
+          <span>عرض حالة الطلب</span>
+          <span className="material-symbols-outlined text-[16px] opacity-70">south</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('artworks-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              el.classList.add('ring-2', 'ring-gold-500', 'transition-all');
+              setTimeout(() => el.classList.remove('ring-2', 'ring-gold-500'), 1500);
+            }
+          }}
+          className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#ede6d6] dark:bg-[#251f15] hover:bg-[#e4dcce] dark:hover:bg-[#2e261b] text-stone-900 dark:text-stone-100 font-bold text-xs sm:text-sm border border-[#d6ccb8] dark:border-gold-500/30 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-[20px] text-gold-500">inventory_2</span>
+          <span>عرض الأصناف المطلوبة</span>
+          <span className="material-symbols-outlined text-[16px] opacity-70">south</span>
+        </button>
+      </div>
+
       {/* Masked Customer & Dispatch Meta Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-5 mt-5 border-t border-[#e5ddce] dark:border-[#2f2719] text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 mt-4 border-t border-[#e5ddce] dark:border-[#2f2719] text-xs">
         <div className="flex items-center gap-2 text-stone-700 dark:text-[#c4b8a4]">
           <span className="material-symbols-outlined text-[18px] text-gold-500 shrink-0">pin_drop</span>
           <div>

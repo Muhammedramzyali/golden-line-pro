@@ -6,10 +6,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SAMPLE_SHIPMENTS, ArtworkProduct } from './types';
 import { Header } from './components/Header';
+import { DeliveryInfoCard } from './components/DeliveryInfoCard';
+import { ArtworksList } from './components/ArtworksList';
 import { ShipmentHero } from './components/ShipmentHero';
 import { TimelineStepper } from './components/TimelineStepper';
 import { FinancialsAndPayment } from './components/FinancialsAndPayment';
-import { ArtworksList } from './components/ArtworksList';
 import { AppPromoBanner } from './components/AppPromoBanner';
 import { Footer } from './components/Footer';
 import { SkeletonView } from './components/SkeletonView';
@@ -158,36 +159,43 @@ export default function App() {
           <SkeletonView onBack={() => setShowSkeleton(false)} />
         ) : (
           <div className="flex flex-col gap-6 sm:gap-8 transition-opacity duration-300">
-            {/* 1. Shipment Status Hero Card */}
+            {/* 1. وجهة التسليم والعنوان ورقم الهاتف وتفاصيل الطلب في البداية العلوية */}
+            <DeliveryInfoCard
+              shipment={currentShipment}
+              onCopy={handleCopy}
+              onOpenLiveMap={() => setShowLiveMap(true)}
+            />
+
+            {/* 2. الأصناف المطلوبة واللوحات المصنعة في هذا الطلب */}
+            <ArtworksList
+              items={currentShipment.items}
+              onSelectArtwork={(art) => setSelectedArtwork(art)}
+            />
+
+            {/* 3. منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه (تحت الأصناف) */}
             <ShipmentHero
               shipment={currentShipment}
               onCopy={handleCopy}
               onOpenLiveMap={() => setShowLiveMap(true)}
             />
 
-            {/* 2. Timeline Progress Stepper & Live Activity Logs */}
-            <TimelineStepper shipment={currentShipment} />
-
-            {/* 3. Financial Breakdown & Payment Options */}
+            {/* 4. تفاصيل الحساب المالي وطرق الدفع */}
             <FinancialsAndPayment
               shipment={currentShipment}
               onOpenCliqModal={() => setShowCliqModal(true)}
               onCopy={handleCopy}
             />
 
-            {/* 4. Ordered Artworks & Custom Specs */}
-            <ArtworksList
-              items={currentShipment.items}
-              onSelectArtwork={(art) => setSelectedArtwork(art)}
-            />
+            {/* 5. مسار مراحل التوصيل وسجل التحديثات الحية */}
+            <TimelineStepper shipment={currentShipment} />
 
-            {/* 5. Mobile App Promo Banner */}
+            {/* 6. بانر تطبيق الزبائن */}
             <AppPromoBanner
               onCopy={handleCopy}
               onOpenLiveMap={() => setShowLiveMap(true)}
             />
 
-            {/* 6. Support Assistance Footer */}
+            {/* 7. تذييل الصفحة وخدمة العملاء */}
             <Footer />
           </div>
         )}

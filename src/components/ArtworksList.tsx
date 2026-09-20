@@ -8,7 +8,7 @@ interface ArtworksListProps {
 
 export const ArtworksList: React.FC<ArtworksListProps> = ({ items, onSelectArtwork }) => {
   return (
-    <section className="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors duration-300">
+    <section id="artworks-section" className="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors duration-300 scroll-mt-24">
       <div className="flex flex-wrap items-center justify-between gap-2 pb-5 border-b border-[#eee7da] dark:border-[#2b2417]">
         <div>
           <div className="flex items-center gap-2">

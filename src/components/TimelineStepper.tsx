@@ -15,7 +15,7 @@ export const TimelineStepper: React.FC<TimelineStepperProps> = ({ shipment }) =>
   );
 
   return (
-    <section className="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors duration-300">
+    <section id="timeline-section" className="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors duration-300 scroll-mt-24">
       <div className="flex items-center justify-between pb-5 border-b border-[#eee7da] dark:border-[#2b2417]">
         <div>
           <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">

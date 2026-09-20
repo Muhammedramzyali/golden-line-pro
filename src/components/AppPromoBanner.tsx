@@ -15,9 +15,9 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({ onCopy, onOpenLi
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
         {/* Left: Value Proposition & Marketing Copy */}
         <div className="max-w-xl text-center lg:text-right space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30 text-xs font-bold">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30 text-xs font-bold">
             <span className="material-symbols-outlined text-[16px]">stars</span>
-            <span>تطبيق Golden Line الرسمي للموبايل</span>
+            <span>قم بتنزيل تطبيق Golden line واحصل على عروض حصرية</span>
           </div>
 
           <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white leading-tight">
