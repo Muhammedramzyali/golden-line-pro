@@ -66,20 +66,24 @@
 <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gold-500/10 dark:bg-gold-500/[0.07] blur-[120px] pointer-events-none rounded-full -z-10"></div>
 <div class="fixed bottom-0 right-0 w-[450px] h-[450px] bg-gold-500/5 blur-[150px] pointer-events-none rounded-full -z-10"></div>
 
-<!-- Luxury Brand Header -->
-<header class="sticky top-0 z-40 bg-[#f9f7f2]/95 dark:bg-[#14100a]/95 backdrop-blur-md border-b border-[#e5ddce] dark:border-[#2d2516] shadow-sm transition-colors duration-300">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-        <!-- Logo & Title -->
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-[#1b1710] border border-gold-500/40 p-1 flex items-center justify-center shadow-md shrink-0">
+<!-- Luxury Brand Header (الواجهة العلوية) -->
+<header id="main-app-header" class="relative bg-[#f9f7f2]/95 dark:bg-[#14100a]/95 border-b border-[#e5ddce] dark:border-[#2d2516] shadow-sm transition-colors duration-300">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        
+        <!-- في الهاتف: اللوجو بسطر لوحده أولاً ثم الكلمات في السطر الثاني | في الكمبيوتر: بجانب بعضهما -->
+        <div class="flex flex-col sm:flex-row items-center sm:items-center gap-2.5 sm:gap-3.5 text-center sm:text-right">
+            <!-- 1. اللوجو في سطر لوحده على الهاتف -->
+            <div class="w-14 h-14 sm:w-11 sm:h-11 rounded-2xl sm:rounded-xl bg-[#1b1710] border border-gold-500/40 p-1.5 sm:p-1 flex items-center justify-center shadow-md shrink-0">
                 <img 
                     src="https://lh3.googleusercontent.com/aida/AEtjO1UZ2StPdi3KWqVvyC49xL_g4arlSJR6RMT97k7Flz0Lmog3bxKcby0bVaIFsDMYRXJPMoDY3jtMebF2apF0mqOEN7kCABM-WsPjKL-nLain7fAOKFwPhAS943sGl4aAQXKd_lxAXxcEIIbhmKqVPL9dgIsLhhRcPufKtP_iRJSDdCR88ac-S6zU4NqIGmz4vioEQG8u1MEbP12QfBEBwzfaLpr-TzYaFnsha_q3TroaYcXCoPbiR-0f0A5V9QAYb2dfAchqHcJdng" 
                     alt="Golden Line" 
                     class="w-full h-full object-contain brightness-110"
                 >
             </div>
-            <div class="flex flex-col">
-                <div class="flex items-center gap-2">
+
+            <!-- 2. السطر الثاني على الهاتف: الكلمات نظام التتبع والشارة والوصف -->
+            <div class="flex flex-col items-center sm:items-start gap-1">
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <h1 class="text-base sm:text-lg font-bold tracking-tight text-stone-900 dark:text-gold-400">نظام تتبع الشحنات</h1>
                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 font-semibold border border-gold-500/30">بوابة الاستعلام الموحدة</span>
                 </div>
@@ -87,28 +91,38 @@
             </div>
         </div>
 
-        <!-- Header Actions -->
-        <div class="flex items-center gap-2 sm:gap-3">
-            <button 
-                type="button" 
-                onclick="showSearchHome()" 
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold-500/15 hover:bg-gold-500/25 text-gold-700 dark:text-gold-300 border border-gold-500/30 text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer"
-                title="استعلام عن طلب آخر"
-            >
-                <span class="material-symbols-outlined text-[18px]">search</span>
-                <span class="hidden sm:inline">استعلام جديد</span>
-            </button>
+        <!-- 3. السطر الثالث على الهاتف: الأزرار ومربع البحث السريع تحتهما بشكل منظم ومريح للضغط -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 sm:gap-2.5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#e5ddce]/60 dark:border-[#2f2719]">
+            
+            <!-- مربع البحث السريع وزر أيقونة البحث للذهاب والبحث في أوردر جديد -->
+            <form onsubmit="handleHeaderSearchSubmit(event)" class="flex items-center gap-1 bg-[#f0ebd9] dark:bg-[#1f1910] p-1 rounded-xl border border-gold-500/35 focus-within:border-gold-500 transition-all shadow-inner w-full sm:w-auto max-w-xs">
+                <input 
+                    type="text" 
+                    id="header-search-input" 
+                    placeholder="رقم طلب جديد..." 
+                    dir="rtl"
+                    autocomplete="off"
+                    class="w-full sm:w-28 md:w-36 bg-transparent text-xs font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:outline-none px-2 py-1"
+                />
+                <button 
+                    type="submit" 
+                    id="header-search-submit-btn" 
+                    class="w-8 h-8 rounded-lg bg-gold-500 hover:bg-gold-400 active:scale-95 text-stone-950 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow"
+                    title="بحث واستعلام في أوردر جديد أو الانتقال للرئيسية"
+                >
+                    <span class="material-symbols-outlined text-[19px]">search</span>
+                </button>
+            </form>
 
             <button 
                 id="header-support-btn" 
                 type="button" 
                 onclick="handleHeaderSupportClick()" 
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer"
+                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer"
                 title="التواصل عبر واتساب الصفحة"
             >
                 <span class="material-symbols-outlined text-[18px]">chat</span>
-                <span class="hidden sm:inline">واتساب الدعم</span>
-                <span class="sm:hidden">مساعدة</span>
+                <span class="inline">واتساب الدعم</span>
             </button>
 
             <button 
@@ -116,9 +130,10 @@
                 type="button" 
                 onclick="toggleAppTheme()" 
                 aria-label="تبديل الوضع الداكن والفاتح" 
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#ebe4d5] dark:bg-[#201b12] hover:bg-[#ded5c2] dark:hover:bg-[#2d2518] text-stone-800 dark:text-gold-400 border border-[#d6ccb8] dark:border-gold-500/30 text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+                class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-[#ebe4d5] dark:bg-[#201b12] hover:bg-[#ded5c2] dark:hover:bg-[#2d2518] text-stone-800 dark:text-gold-400 border border-[#d6ccb8] dark:border-gold-500/30 text-xs sm:text-sm font-semibold transition-all cursor-pointer shrink-0"
             >
                 <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">light_mode</span>
+                <span class="text-xs sm:hidden">الوضع</span>
             </button>
         </div>
     </div>
@@ -145,28 +160,36 @@
                 </p>
             </div>
 
-            <!-- نموذج البحث الرئيسي الكبير -->
-            <form onsubmit="handleMainSearchSubmit(event)" class="relative w-full shadow-2xl rounded-2xl p-2 bg-[#ffffff] dark:bg-[#1a150d] border-2 border-gold-500/40 focus-within:border-gold-500 transition-all">
-                <div class="flex items-center gap-2">
-                    <div class="w-12 h-12 rounded-xl bg-gold-500/15 text-gold-600 dark:text-gold-400 flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-[26px]">manage_search</span>
+            <!-- نموذج البحث الرئيسي الكبير المتجاوب كلياً مع الموبايل والكمبيوتر لمنع خروج النص تماماً -->
+            <form onsubmit="handleMainSearchSubmit(event)" class="relative w-full shadow-2xl rounded-2xl p-2.5 sm:p-3 bg-[#ffffff] dark:bg-[#1a150d] border-2 border-gold-500/40 focus-within:border-gold-500 transition-all overflow-hidden text-right">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0 bg-[#f7f4ed] dark:bg-[#130f0a] px-3 py-2.5 sm:py-2 rounded-xl border border-[#ded5c2] dark:border-[#2f2719]">
+                        <div class="w-9 h-9 rounded-lg bg-gold-500/15 text-gold-600 dark:text-gold-400 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[22px]">manage_search</span>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="main-order-input" 
+                            placeholder="أدخل رقم الطلب هنا (مثال: 1067)" 
+                            dir="rtl"
+                            autocomplete="off"
+                            class="w-full min-w-0 bg-transparent text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none px-1"
+                        >
                     </div>
-                    <input 
-                        type="text" 
-                        id="main-order-input" 
-                        placeholder="أدخل رقم الطلب هنا ( اطلب رقم الشحنة من موظف الدعم على الصفحة في حال تعذر البحث )" 
-                        dir="rtl"
-                        autocomplete="off"
-                        class="flex-1 bg-transparent text-sm sm:text-base font-medium text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none px-2"
-                    >
                     <button 
                         type="submit" 
                         id="main-search-btn"
-                        class="px-5 sm:px-7 py-3 rounded-xl bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-stone-950 font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                        class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 active:scale-[0.98] text-stone-950 font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                     >
                         <span>استعلام</span>
                         <span class="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
+                </div>
+                <div class="mt-2.5 pt-2 border-t border-stone-100 dark:border-[#262015] px-1">
+                    <p class="text-[11px] sm:text-xs text-stone-500 dark:text-[#a89d88] flex items-center justify-center sm:justify-start gap-1.5 leading-normal">
+                        <span class="material-symbols-outlined text-[15px] text-gold-500 shrink-0">info</span>
+                        <span>اطلب رقم الشحنة من موظف الدعم على الصفحة في حال تعذر البحث</span>
+                    </p>
                 </div>
             </form>
 
@@ -263,21 +286,31 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي (يظهر بعد جلب البيانات) -->
+    <!-- المحتوى الرئيسي (يظهر بعد جلب البيانات: الترتيب الدقيق المطلوب من المستخدم) -->
     <div id="main-content" class="hidden flex flex-col gap-6 sm:gap-8 transition-opacity duration-300">
         
-        <!-- ملخص الطلب -->
-        <div id="order-summary" class="rounded-2xl bg-gradient-to-br from-[#ffffff] via-[#f7f4ec] to-[#eee8da] dark:from-[#211c13] dark:via-[#19150e] dark:to-[#141009] border border-[#ded5c2] dark:border-[#382f1f] p-5 sm:p-7 shadow-lg transition-colors">
-            <!-- سيتم حقن البيانات هنا عبر JS -->
+        <!-- 1. عندما يفتح المستخدم الرابط تفتح له مباشرة: وجهة التسليم والعنوان ورقم الهاتف وتفاصيل الطلب -->
+        <div id="order-delivery-info" class="rounded-2xl bg-gradient-to-br from-[#ffffff] via-[#f7f4ec] to-[#eee8da] dark:from-[#211c13] dark:via-[#19150e] dark:to-[#141009] border border-[#ded5c2] dark:border-[#382f1f] p-5 sm:p-7 shadow-lg transition-colors">
+            <!-- سيتم حقن بيانات العنوان ورقم الهاتف وهوية الشحنة وأزرار التنقل هنا عبر JS -->
         </div>
 
-        <!-- حالة الطلب والمراحل -->
-        <div id="order-status" class="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors">
-            <!-- سيتم حقن البيانات هنا عبر JS -->
-        </div>
-
-        <!-- قائمة المنتجات -->
+        <!-- 2. ثم يليها الأصناف المطلوبة المثبتة في هذا الطلب -->
         <div id="order-items" class="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors">
+            <!-- سيتم حقن قائمة الأصناف واللوحات هنا عبر JS -->
+        </div>
+
+        <!-- 3. ثم يليها منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه والتفاصيل المالية (تحت الأصناف) -->
+        <div id="order-status-card" class="rounded-2xl bg-gradient-to-br from-[#ffffff] via-[#f7f4ec] to-[#eee8da] dark:from-[#211c13] dark:via-[#19150e] dark:to-[#141009] border border-[#ded5c2] dark:border-[#382f1f] p-5 sm:p-7 shadow-lg transition-colors">
+            <!-- سيتم حقن منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه وتفاصيل الحساب المالي هنا عبر JS -->
+        </div>
+
+        <!-- 4. الواجهة العلوية (شعار تتبع الشحنات وبوابة الاستعلام وأزرار المساعدة) تأتي هنا بعد تفاصيل وأصناف الطلب -->
+        <div id="order-tracking-header-slot" class="rounded-2xl overflow-hidden border border-[#ded5c2] dark:border-[#2d2516] shadow-md">
+            <!-- سيتم نقل الواجهة العلوية إلى هنا عند استعراض الطلب -->
+        </div>
+
+        <!-- 5. حالة الطلب ومسار التوصيل والمراحل -->
+        <div id="order-status" class="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors">
             <!-- سيتم حقن البيانات هنا عبر JS -->
         </div>
 
@@ -286,9 +319,9 @@
             <div class="absolute -top-16 -left-16 w-60 h-60 bg-gold-500/15 rounded-full blur-3xl pointer-events-none"></div>
             <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div class="space-y-2.5 text-center md:text-right">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30 text-xs font-bold">
+                    <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30 text-xs font-bold">
                         <span class="material-symbols-outlined text-[16px]">stars</span>
-                        <span>تطبيق تتبع الشحنات والطلبات الذكي</span>
+                        <span>قم بتنزيل تطبيق Golden line واحصل على عروض حصرية</span>
                     </div>
                     <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
                         احصل على <span class="gold-gradient-text font-extrabold"> توصيل مجاني</span> على طلبك القادم
@@ -351,14 +384,138 @@
     </div>
 </main>
 
-<!-- Lightbox Modal لمعاينة صور المنتجات -->
+<!-- Lightbox Modal لمعاينة صور المنتجات وحزم الصور المتعددة -->
 <div id="image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 animate-in fade-in" onclick="closeImageModal()">
-    <div class="max-w-2xl w-full bg-[#18140c] border border-gold-500/40 rounded-2xl overflow-hidden p-3 relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeImageModal()" class="absolute top-4 left-4 w-9 h-9 rounded-full bg-black/80 text-white hover:text-gold-400 flex items-center justify-center z-10">
-            <span class="material-symbols-outlined text-[20px]">close</span>
+    <div class="max-w-3xl w-full bg-[#18140c] border border-gold-500/40 rounded-2xl overflow-hidden p-4 relative flex flex-col max-h-[92vh] shadow-2xl" onclick="event.stopPropagation()">
+        <!-- شريط التحكم العلوي -->
+        <div class="flex items-center justify-between pb-3 mb-2 border-b border-[#2f2719]">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="material-symbols-outlined text-gold-400 text-[22px] shrink-0">photo_library</span>
+                <span id="modal-title" class="text-xs sm:text-sm font-bold text-stone-100 truncate"></span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a id="modal-download-btn" href="#" target="_blank" download class="px-3 py-1.5 rounded-xl bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer" title="تحميل هذه الصورة">
+                    <span class="material-symbols-outlined text-[16px]">download</span>
+                    <span class="hidden sm:inline">تحميل الصورة</span>
+                </a>
+                <button type="button" onclick="closeImageModal()" class="w-8 h-8 rounded-xl bg-stone-800 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- منطقة الصورة مع أزرار التنقل -->
+        <div class="relative flex-1 flex items-center justify-center overflow-hidden min-h-[320px] bg-black/40 rounded-xl p-2">
+            <button id="modal-prev-btn" type="button" onclick="navigateModalImage(-1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/75 hover:bg-gold-500 hover:text-stone-950 text-white flex items-center justify-center z-10 transition-all shadow-lg hidden cursor-pointer" title="الصورة السابقة">
+                <span class="material-symbols-outlined text-[24px]">chevron_right</span>
+            </button>
+            
+            <img id="modal-img" src="" alt="معاينة المنتج" class="max-w-full max-h-[68vh] object-contain rounded-lg shadow-lg select-none">
+
+            <button id="modal-next-btn" type="button" onclick="navigateModalImage(1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/75 hover:bg-gold-500 hover:text-stone-950 text-white flex items-center justify-center z-10 transition-all shadow-lg hidden cursor-pointer" title="الصورة التالية">
+                <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+            </button>
+        </div>
+
+        <!-- مؤشر الصورة وشريط المساعدة -->
+        <div class="pt-3 mt-2 border-t border-[#2f2719] flex items-center justify-between text-xs text-stone-400">
+            <span id="modal-counter" class="font-mono text-gold-400 font-bold"></span>
+            <span class="text-[11px] text-stone-500">انقر خارج الإطار أو اضغط على زر الإغلاق للعودة</span>
+        </div>
+    </div>
+</div>
+
+<!-- Modal مخصص لمعاينة صورة العربون المدفوع مسبقاً -->
+<div id="deposit-image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 animate-in fade-in" onclick="closeDepositImageModal()">
+    <div class="max-w-xl w-full bg-[#18140c] border border-emerald-500/50 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between p-4 border-b border-[#2f2719] bg-[#1a231b]">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                </div>
+                <div>
+                    <h4 id="deposit-modal-title" class="text-sm font-bold text-stone-100">صورة إيصال تحويل العربون</h4>
+                    <span id="deposit-modal-subtitle" class="text-[11px] text-emerald-400 font-bold block">معتمد وموثق بقيد الدفع</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="deposit-download-btn" href="#" target="_blank" download class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer" title="تحميل صورة إيصال العربون">
+                    <span class="material-symbols-outlined text-[16px]">download</span>
+                    <span class="hidden sm:inline">تحميل الإيصال</span>
+                </a>
+                <button type="button" onclick="closeDepositImageModal()" class="w-8 h-8 rounded-xl bg-stone-800 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 flex-1 overflow-auto flex items-center justify-center bg-black/50">
+            <img id="deposit-modal-img" src="" alt="صورة إيصال العربون" class="max-w-full max-h-[68vh] object-contain rounded-xl shadow-lg">
+        </div>
+        <div class="p-3 bg-[#16120b] border-t border-[#2f2719] flex items-center justify-between text-xs text-stone-400">
+            <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                <span class="material-symbols-outlined text-[16px]">verified</span>
+                <span id="deposit-modal-amount-label">العربون المسجل</span>
+            </div>
+            <button type="button" onclick="closeDepositImageModal()" class="text-xs text-stone-400 hover:text-stone-200">إغلاق المعاينة</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal حماية خصوصية الصور الشخصية برقم الهاتف كاملاً -->
+<div id="phone-verification-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 animate-in fade-in" onclick="closePhoneVerifyModal()">
+    <div class="max-w-md w-full bg-[#1c1710] border border-gold-500/50 rounded-2xl overflow-hidden shadow-2xl p-6 relative" onclick="event.stopPropagation()">
+        <button type="button" onclick="closePhoneVerifyModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-stone-800/80 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
-        <img id="modal-img" src="" alt="معاينة المنتج" class="w-full max-h-[75vh] object-contain rounded-xl">
-        <p id="modal-title" class="text-xs font-bold text-gold-300 text-center mt-3"></p>
+
+        <div class="text-center space-y-3.5">
+            <div class="w-14 h-14 rounded-2xl bg-gold-500/15 text-gold-400 border border-gold-500/30 flex items-center justify-center mx-auto shadow-inner">
+                <span class="material-symbols-outlined text-[30px]">lock</span>
+            </div>
+            
+            <div class="space-y-1">
+                <h3 class="text-base sm:text-lg font-bold text-stone-100 flex items-center justify-center gap-1.5">
+                    <span>التحقق الأمني للصور الشخصية</span>
+                </h3>
+                <p class="text-xs text-stone-400 leading-relaxed px-2">
+                    لأغراض الأمان، قم بوضع رقم الهاتف الأساسي أو البديل لاستعراض الصور نظراً لأنها صور خاصة.
+                </p>
+            </div>
+
+            <form onsubmit="handlePhoneVerificationSubmit(event)" class="space-y-3 pt-1">
+                <div>
+                    <input 
+                        type="tel" 
+                        id="verify-phone-input" 
+                        dir="ltr"
+                        autocomplete="tel" 
+                        placeholder="أدخل رقم الهاتف الأساسي أو البديل" 
+                        class="w-full text-center px-4 py-3 rounded-xl bg-[#141009] border border-stone-700 text-stone-100 font-mono text-base font-bold placeholder:font-sans placeholder:text-stone-600 focus:outline-none focus:border-gold-500 transition-colors shadow-inner"
+                    />
+                    <p id="verify-phone-error" class="text-xs text-rose-400 font-semibold mt-1.5 hidden flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">error</span>
+                        <span id="verify-phone-error-text">رقم الهاتف غير مطابق لرقم المستلم المسجل بالطلب.</span>
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <button 
+                        type="button" 
+                        onclick="closePhoneVerifyModal()" 
+                        class="w-full py-2.5 px-3 rounded-xl bg-[#282115] hover:bg-[#332b1c] text-stone-300 font-bold text-xs transition-colors cursor-pointer"
+                    >
+                        إلغاء
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="w-full py-2.5 px-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                    >
+                        <span class="material-symbols-outlined text-[16px]">verified_user</span>
+                        <span>تأكيد واستعراض</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -413,6 +570,13 @@
 
     // إظهار الشاشة الرئيسية المخصصة للبحث والاستعلام
     function showSearchHome() {
+        // إعادة الواجهة العلوية إلى موضعها الطبيعي في قمة الصفحة فوق شاشة الاستعلام
+        const headerElem = document.getElementById('main-app-header');
+        const mainElem = document.querySelector('main');
+        if (headerElem && mainElem && headerElem.parentElement !== document.body) {
+            document.body.insertBefore(headerElem, mainElem);
+        }
+
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('error-state').classList.add('hidden');
         document.getElementById('main-content').classList.add('hidden');
@@ -433,8 +597,35 @@
         }, 100);
     }
 
+    // الانتقال السلس إلى منطقة مسار وحالة الطلب
+    function scrollToOrderStatus() {
+        const el = document.getElementById('order-status-card') || document.getElementById('order-status');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('ring-2', 'ring-gold-500', 'transition-all');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-gold-500'), 1500);
+        }
+    }
+
+    // الانتقال السلس إلى منطقة الأصناف المثبتة مسبقاً
+    function scrollToOrderItems() {
+        const el = document.getElementById('order-items');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('ring-2', 'ring-gold-500', 'transition-all');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-gold-500'), 1500);
+        }
+    }
+
     // 2. عرض الخطأ
     function showError(message) {
+        // إعادة الواجهة العلوية إلى موضعها الطبيعي في قمة الصفحة فوق شاشة التنبيه والخطأ
+        const headerElem = document.getElementById('main-app-header');
+        const mainElem = document.querySelector('main');
+        if (headerElem && mainElem && headerElem.parentElement !== document.body) {
+            document.body.insertBefore(headerElem, mainElem);
+        }
+
         const homeDiv = document.getElementById('search-home-state');
         if (homeDiv) homeDiv.classList.add('hidden');
 
@@ -533,11 +724,13 @@
         if (waUrl) {
             window.open(waUrl, '_blank');
         } else {
-            showToast('لم يتم تسجيل رقم هاتف لهذه الصفحة في قاعدة البيانات (عامود phone_number فارغ)');
+            // في حال عدم توفر رقم مخصص للصفحة، يتم التحويل مباشرة لواتساب خدمة العملاء والدعم العام
+            const fallbackMsg = encodeURIComponent(`مرحباً خدمة العملاء، أود الاستفسار والمساعدة بخصوص الشحنة رقم #GL-${window.currentLoadedOrder.id}`);
+            window.open(`https://wa.me/962772816628?text=${fallbackMsg}`, '_blank');
         }
     }
 
-    // دالة إنشاء رابط محادثة واتساب موجه لرقم الصفحة مع رسالة مهيئة برقم الطلب (لا تضع أي رقم افتراضي إذا كان الحقل فارغاً بالسيرفر)
+    // دالة إنشاء رابط محادثة واتساب موجه لرقم الصفحة مع رسالة مهيئة برقم الطلب
     function formatWhatsAppUrl(rawPhone, orderId, pageName) {
         if (!rawPhone) return null;
         let clean = String(rawPhone).replace(/[^0-9]/g, '');
@@ -554,7 +747,7 @@
         return `https://wa.me/${clean}?text=${msg}`;
     }
 
-    // دالة استخراج رابط الاتصال الهاتفي الطبيعي (لا تضع أي رقم افتراضي إذا كان الحقل فارغاً بالسيرفر)
+    // دالة استخراج رابط الاتصال الهاتفي الطبيعي
     function getPhoneCallUrl(rawPhone) {
         if (!rawPhone) return null;
         const clean = String(rawPhone).trim();
@@ -562,16 +755,10 @@
         return `tel:${clean}`;
     }
 
-    // دالة ذكية لتحديد نوع رابط الصفحة (إنستغرام، فيسبوك، تيك توك، سناب شات، إكس، يوتيوب، أو متجر/موقع عام) ورسم الأيقونة المناسبة له
+    // دالة ذكية لتحديد نوع رابط الصفحة ورسم الأيقونة المناسبة له
     function renderPageLinkButton(pageUrl, pageName) {
         if (!pageUrl || !String(pageUrl).trim()) {
-            // في حال كان الحقل فارغاً في جدول pages، نعرض زراً إرشادياً واضحاً يوضح للمستخدم أن حقل page_url فارغ في السيرفر
-            return `
-                <button type="button" onclick="showToast('لم يتم إضافة رابط الصفحة في قاعدة البيانات (حقل page_url فارغ في جدول pages)')" class="px-3.5 py-2.5 rounded-xl bg-stone-100 dark:bg-[#201a12] text-stone-500 dark:text-[#8a7f6c] border border-dashed border-stone-300 dark:border-[#3d3320] text-xs font-semibold flex items-center gap-1.5 hover:border-gold-500/50 transition-all cursor-pointer shadow-sm" title="حقل page_url فارغ في قاعدة البيانات">
-                    <span class="material-symbols-outlined text-[17px] text-stone-400">link_off</span>
-                    <span>رابط الصفحة (غير مسجل)</span>
-                </button>
-            `;
+            return '';
         }
 
         let cleanUrl = String(pageUrl).trim();
@@ -776,6 +963,7 @@
         // تخزين البيانات للوصول إليها من شريط الرأس وكافة أزرار الواجهة
         window.currentLoadedPage = page;
         window.currentLoadedOrder = order;
+        window.currentLoadedItems = items || [];
 
         const pageName = (page && page.page_name) ? page.page_name.trim() : '';
         const pagePhone = (page && page.phone_number) ? page.phone_number.trim() : '';
@@ -860,17 +1048,26 @@
         }
 
         // العربون المدفوع مسبقاً (يظهر فقط إن وجد عربون مسجل في قاعدة البيانات)
+        const depositImageUrl = (order.deposit_image_url && String(order.deposit_image_url).trim().length > 0) ? String(order.deposit_image_url).trim() : null;
         const depositPaidBadge = deposit > 0 
-            ? `<div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">verified</span>
+            ? `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+                <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-[20px] text-emerald-600 dark:text-emerald-400">verified</span>
                     <div>
-                        <span class="text-xs sm:text-sm font-semibold block">العربون المدفوع مسبقاً</span>
+                        <span class="text-xs sm:text-sm font-bold block">العربون المدفوع مسبقاً</span>
                         <span class="text-[10px] text-emerald-600 dark:text-emerald-400">معتمد وموثق بقيد الدفع</span>
                     </div>
                 </div>
-                <div class="text-left font-mono font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
-                    - ${deposit.toFixed(2)} <span class="text-xs font-sans">د.أ</span>
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                    ${depositImageUrl ? `
+                        <button type="button" onclick="openDepositImageModal('${escapeHtml(depositImageUrl)}', '${order.id}', '${deposit.toFixed(2)}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                            <span>عرض صورة العربون</span>
+                        </button>
+                    ` : ''}
+                    <div class="text-left font-mono font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
+                        - ${deposit.toFixed(2)} <span class="text-xs font-sans">د.أ</span>
+                    </div>
                 </div>
                </div>` 
             : '';
@@ -920,108 +1117,146 @@
             `;
         }
 
-        // 1. ملخص الطلب (Hero Card)
-        document.getElementById('order-summary').innerHTML = `
-            <div class="space-y-5">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                    <div class="space-y-2.5">
-                        <div class="flex flex-wrap items-center gap-2.5">
-                            <span class="px-3 py-1 rounded-lg bg-[#201b12] text-gold-400 font-mono text-sm font-bold border border-gold-500/30 flex items-center gap-1.5 shadow-sm">
+        // 1. عندما يفتح المستخدم الرابط: وجهة التسليم والعنوان ورقم الهاتف وتفاصيل الهوية في البداية العلوية مباشرة
+        const deliveryInfoElem = document.getElementById('order-delivery-info');
+        if (deliveryInfoElem) {
+            deliveryInfoElem.innerHTML = `
+                <div class="space-y-5">
+                    <!-- أ. شريط هوية الشحنة والصفحة -->
+                    <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#e5ddce] dark:border-[#2f2719]">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-3 py-1.5 rounded-xl bg-[#201b12] text-gold-400 font-mono text-sm font-bold border border-gold-500/30 flex items-center gap-1.5 shadow-sm">
                                 <span class="material-symbols-outlined text-[16px]">tag</span>
                                 <span>#GL-${order.id}</span>
                             </span>
                             ${pageName ? (
                                 pageUrl ? `
-                                    <a href="${escapeHtml(pageUrl.startsWith('http') ? pageUrl : 'https://' + pageUrl)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-gold-500/15 hover:bg-gold-500/25 text-gold-700 dark:text-gold-300 font-bold text-xs border border-gold-500/30 flex items-center gap-1 shadow-sm transition-all" title="انقر لزيارة صفحة المتجر المعتمدة">
+                                    <a href="${escapeHtml(pageUrl.startsWith('http') ? pageUrl : 'https://' + pageUrl)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl bg-gold-500/15 hover:bg-gold-500/25 text-gold-700 dark:text-gold-300 font-bold text-xs border border-gold-500/30 flex items-center gap-1 shadow-sm transition-all" title="انقر لزيارة صفحة المتجر المعتمدة">
                                         <span class="material-symbols-outlined text-[15px]">storefront</span>
                                         <span>${escapeHtml(pageName)}</span>
                                         <span class="material-symbols-outlined text-[12px] opacity-70">open_in_new</span>
                                     </a>
                                 ` : `
-                                    <span class="px-2.5 py-1 rounded-lg bg-gold-500/15 text-gold-700 dark:text-gold-300 font-bold text-xs border border-gold-500/30 flex items-center gap-1 shadow-sm">
+                                    <span class="px-2.5 py-1.5 rounded-xl bg-gold-500/15 text-gold-700 dark:text-gold-300 font-bold text-xs border border-gold-500/30 flex items-center gap-1 shadow-sm">
                                         <span class="material-symbols-outlined text-[15px]">storefront</span>
                                         <span>${escapeHtml(pageName)}</span>
                                     </span>
                                 `
                             ) : ''}
-                            <button type="button" onclick="copyText('${order.id}', 'رقم الطلب #${order.id}')" class="text-xs text-stone-600 dark:text-stone-400 hover:text-gold-600 dark:hover:text-gold-400 flex items-center gap-1 bg-[#ede6d6] dark:bg-[#282216] px-2.5 py-1 rounded-md transition-colors font-medium">
+                            <button type="button" onclick="copyText('${order.id}', 'رقم الطلب #${order.id}')" class="text-xs text-stone-600 dark:text-stone-400 hover:text-gold-600 dark:hover:text-gold-400 flex items-center gap-1 bg-[#ede6d6] dark:bg-[#282216] px-2.5 py-1.5 rounded-xl transition-colors font-medium cursor-pointer" title="نسخ رقم الطلب">
                                 <span class="material-symbols-outlined text-[14px]">content_copy</span>
                                 <span>نسخ الرقم</span>
                             </button>
-                            <button type="button" onclick="showSearchHome()" class="text-xs text-stone-600 dark:text-gold-400/90 hover:text-gold-600 dark:hover:text-gold-300 flex items-center gap-1 bg-gold-500/10 hover:bg-gold-500/20 px-2.5 py-1 rounded-md transition-colors font-medium border border-gold-500/30">
-                                <span class="material-symbols-outlined text-[14px]">search</span>
-                                <span>استعلام عن شحنة أخرى</span>
+                            <button type="button" onclick="showSearchHome()" class="text-xs text-stone-800 dark:text-gold-400 hover:bg-gold-500/20 flex items-center gap-1 bg-gold-500/15 border border-gold-500/35 px-2.5 py-1.5 rounded-xl transition-all font-bold cursor-pointer" title="الاستعلام والبحث في طلب جديد">
+                                <span class="material-symbols-outlined text-[15px]">search</span>
+                                <span>استعلام عن طلب آخر</span>
                             </button>
-                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${statusInfo.badgeBg} text-xs font-bold border shadow-sm">
-                                <span class="material-symbols-outlined text-[16px]">${statusInfo.icon}</span>
-                                <span>${statusInfo.badgeText}</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${statusInfo.badgeBg} text-xs font-bold border shadow-sm">
+                            <span class="material-symbols-outlined text-[16px]">${statusInfo.icon}</span>
+                            <span>${statusInfo.badgeText}</span>
+                        </div>
+                    </div>
+
+                    <!-- ب. العنوان وبيانات التسليم فوراً في قمة الصفحة ليكون واضحاً وبارزاً للمستخدم -->
+                    <div class="rounded-2xl p-4 sm:p-5 bg-[#fbf9f4] dark:bg-[#1a160e] border border-gold-500/30 shadow-sm space-y-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-600 dark:text-gold-400 flex items-center justify-center shrink-0 mt-0.5">
+                                <span class="material-symbols-outlined text-[24px]">location_on</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-stone-400 dark:text-[#8a7e6b] block text-[11px] font-bold mb-1">وجهة التسليم والعنوان المسجل:</span>
+                                <p class="font-extrabold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-snug break-words">${address}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-4 pt-2.5 border-t border-[#ebe4d5] dark:border-[#2c2417] text-xs">
+                            <div class="flex items-center gap-2 text-stone-700 dark:text-[#c4b8a4]">
+                                <span class="material-symbols-outlined text-[18px] text-gold-500">perm_phone_msg</span>
+                                <span class="text-stone-500 dark:text-[#8a7e6b]">هاتف الاستلام الأساسي:</span>
+                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${maskedPhone}</span>
+                            </div>
+                            ${maskedPhone2 ? `
+                            <div class="flex items-center gap-2 text-stone-700 dark:text-[#c4b8a4]">
+                                <span class="material-symbols-outlined text-[18px] text-gold-500">phone_iphone</span>
+                                <span class="text-stone-500 dark:text-[#8a7e6b]">رقم بديل:</span>
+                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${maskedPhone2}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- ج. أزرار الإجراءات السريعة للتنقل المباشر -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button 
+                            type="button" 
+                            onclick="scrollToOrderItems()" 
+                            class="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gold-500 hover:bg-gold-400 text-stone-950 font-bold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                            <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                            <span>عرض الأصناف المطلوبة</span>
+                            <span class="material-symbols-outlined text-[16px] opacity-70">south</span>
+                        </button>
+
+                        <button 
+                            type="button" 
+                            onclick="scrollToOrderStatus()" 
+                            class="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#ede6d6] dark:bg-[#251f15] hover:bg-[#e4dcce] dark:hover:bg-[#2e261b] text-stone-900 dark:text-stone-100 font-bold text-xs sm:text-sm border border-[#d6ccb8] dark:border-gold-500/30 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                            <span class="material-symbols-outlined text-[20px] text-gold-500">local_shipping</span>
+                            <span>عرض حالة الطلب ومسار التوصيل</span>
+                            <span class="material-symbols-outlined text-[16px] opacity-70">south</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه والتفاصيل المالية (تأتي تحت الأصناف مباشرة)
+        const orderStatusCardElem = document.getElementById('order-status-card');
+        if (orderStatusCardElem) {
+            orderStatusCardElem.innerHTML = `
+                <div class="space-y-5">
+                    <!-- أ. منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                        <div class="space-y-2">
+                            <h2 class="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                                <span>${statusInfo.heroHeading}</span>
+                            </h2>
+
+                            <p class="text-xs sm:text-sm text-stone-600 dark:text-[#bcb09c] leading-relaxed max-w-xl">
+                                ${statusInfo.heroDescription}
+                            </p>
+                        </div>
+
+                        <!-- البطاقة التفاعلية الواقعية: الطلب جاري العمل عليه -->
+                        <div class="w-full lg:w-auto lg:max-w-xs shrink-0">
+                            ${dynamicNoticeHtml}
+                        </div>
+                    </div>
+
+                    <!-- ب. تفاصيل الحساب المالي المتبقي والمعاينة قبل التسديد -->
+                    <div class="space-y-3 pt-4 border-t border-[#e5ddce] dark:border-[#2f2719]">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-[#fbf9f4] dark:bg-[#1f1a12] border border-[#ebe4d5] dark:border-[#2b2316]">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-stone-400 text-[18px]">inventory_2</span>
+                                <span class="text-xs sm:text-sm text-stone-700 dark:text-[#cdc2b0]">إجمالي قيمة الأصناف والطلب</span>
+                            </div>
+                            <div class="text-left font-mono font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                                ${finalTotal.toFixed(2)} <span class="text-xs font-sans text-stone-500">د.أ</span>
                             </div>
                         </div>
 
-                        <h2 class="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                            <span>${statusInfo.heroHeading}</span>
-                        </h2>
+                        ${depositPaidBadge}
+                        ${financialRemainingHtml}
 
-                        <p class="text-xs sm:text-sm text-stone-600 dark:text-[#bcb09c] leading-relaxed max-w-xl">
-                            ${statusInfo.heroDescription}
-                        </p>
-                    </div>
-
-                    <!-- البطاقة التفاعلية الواقعية -->
-                    <div class="w-full lg:w-auto lg:max-w-xs shrink-0">
-                        ${dynamicNoticeHtml}
+                        <div class="flex items-center gap-2 text-xs text-stone-500 dark:text-[#9e927c] pt-1">
+                            <span class="material-symbols-outlined text-[16px] text-gold-500">verified_user</span>
+                            <span>يحق للعميل معاينة ومطابقة الطلب قبل تسديد المبلغ المتبقي.</span>
+                        </div>
                     </div>
                 </div>
-
-                <!-- بيانات الاستلام والوجهة (معلومات حقيقية وموثقة فقط بدون بيانات وهمية) -->
-                <div class="grid grid-cols-1 ${maskedPhone2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-3.5 pt-4 border-t border-[#e5ddce] dark:border-[#2f2719] text-xs">
-                    <div class="flex items-center gap-3 text-stone-700 dark:text-[#c4b8a4] p-3.5 rounded-xl bg-[#fbf9f4] dark:bg-[#1c1811] border border-[#ebe4d5] dark:border-[#2b2418]">
-                        <span class="material-symbols-outlined text-[20px] text-gold-500 shrink-0">pin_drop</span>
-                        <div class="min-w-0">
-                            <span class="text-stone-400 dark:text-[#7f7461] block text-[10px] font-medium">وجهة التسليم المسجلة:</span>
-                            <span class="font-semibold text-stone-900 dark:text-stone-100 truncate block">${address}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 text-stone-700 dark:text-[#c4b8a4] p-3.5 rounded-xl bg-[#fbf9f4] dark:bg-[#1c1811] border border-[#ebe4d5] dark:border-[#2b2418]">
-                        <span class="material-symbols-outlined text-[20px] text-gold-500 shrink-0">perm_phone_msg</span>
-                        <div class="min-w-0">
-                            <span class="text-stone-400 dark:text-[#7f7461] block text-[10px] font-medium">هاتف الاستلام الأساسي:</span>
-                            <span class="font-mono font-bold text-stone-900 dark:text-stone-100 block" dir="ltr">${maskedPhone}</span>
-                        </div>
-                    </div>
-                    ${maskedPhone2 ? `
-                    <div class="flex items-center gap-3 text-stone-700 dark:text-[#c4b8a4] p-3.5 rounded-xl bg-[#fbf9f4] dark:bg-[#1c1811] border border-[#ebe4d5] dark:border-[#2b2418]">
-                        <span class="material-symbols-outlined text-[20px] text-gold-500 shrink-0">phone_iphone</span>
-                        <div class="min-w-0">
-                            <span class="text-stone-400 dark:text-[#7f7461] block text-[10px] font-medium">رقم الهاتف البديل:</span>
-                            <span class="font-mono font-bold text-stone-900 dark:text-stone-100 block" dir="ltr">${maskedPhone2}</span>
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-
-                <!-- تفاصيل الحساب المالي -->
-                <div class="space-y-3 pt-4 border-t border-[#e5ddce] dark:border-[#2f2719]">
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#fbf9f4] dark:bg-[#1f1a12] border border-[#ebe4d5] dark:border-[#2b2316]">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-stone-400 text-[18px]">inventory_2</span>
-                            <span class="text-xs sm:text-sm text-stone-700 dark:text-[#cdc2b0]">إجمالي قيمة الأصناف والطلب</span>
-                        </div>
-                        <div class="text-left font-mono font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-                            ${finalTotal.toFixed(2)} <span class="text-xs font-sans text-stone-500">د.أ</span>
-                        </div>
-                    </div>
-
-                    ${depositPaidBadge}
-                    ${financialRemainingHtml}
-
-                    <div class="flex items-center gap-2 text-xs text-stone-500 dark:text-[#9e927c] pt-1">
-                        <span class="material-symbols-outlined text-[16px] text-gold-500">verified_user</span>
-                        <span>يحق للعميل معاينة ومطابقة الطلب قبل تسديد المبلغ المتبقي.</span>
-                    </div>
-                </div>
-            </div>
-        `;
+            `;
+        }
 
         // 2. بطاقة مسار مراحل الشحنة خطوة بخطوة (5 مراحل ذكية متناسقة)
         const milestones = [
@@ -1160,14 +1395,14 @@
             <div class="flex flex-wrap items-center justify-between gap-2 pb-5 border-b border-[#eee7da] dark:border-[#2b2417]">
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">الأصناف الثبتة مسبقا في هذا الطلب</h3>
+                        <h3 class="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">الأصناف المثبتة مسبقا في هذا الطلب</h3>
                         <span class="px-2.5 py-0.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-400 text-xs font-bold">${items.length} أصناف</span>
                     </div>
-                    <p class="text-xs text-stone-500 dark:text-[#9e927c] mt-0.5">تفاصيل الأصناف المعتمدة في الشحنة</p>
+                    <p class="text-xs text-stone-500 dark:text-[#9e927c] mt-0.5">تفاصيل الأصناف واللوحات المعتمدة في الشحنة</p>
                 </div>
                 <span class="text-xs text-stone-500 dark:text-[#9e927c] flex items-center gap-1">
                     <span class="material-symbols-outlined text-gold-500 text-[16px]">verified</span>
-                    <span>تم مراجعة أصناف الطلب</span>
+                    <span>تم تدقيق أصناف الطلب</span>
                 </span>
             </div>
 
@@ -1176,33 +1411,141 @@
 
         if (items.length > 0) {
             items.forEach(item => {
-                const itemImg = (item.image_urls && item.image_urls.length > 0) ? item.image_urls[0] : 'https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3QfEB2xyyY-ViRm6nr0JwLMRIyFI-LAS8khGQVaFx5CRyvlNNnNL44TLRg4E5sM5bRz2arBm3aRasUgbcRO0q4YEK_bWpLkRlfbtRb_eBhYxVGRqKJN0S09arcWL5n24BRmRUBPQBT2zIzTIbPDxTPr5o0cGVr4JEanglOEGW7usTFJC5-fWMfa2DtZP9WwqglASjCL-6raCvHLAaXnD0-UIm55bsTMWaI2IKdsjYIIKhA0MDKs';
+                const itemImages = extractItemImages(item);
+                const imagesCount = itemImages.length > 0 ? itemImages.length : parseInt(item.image_quantity || 1, 10);
+                const hasMultipleImages = itemImages.length > 1;
+                const fallbackImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3QfEB2xyyY-ViRm6nr0JwLMRIyFI-LAS8khGQVaFx5CRyvlNNnNL44TLRg4E5sM5bRz2arBm3aRasUgbcRO0q4YEK_bWpLkRlfbtRb_eBhYxVGRqKJN0S09arcWL5n24BRmRUBPQBT2zIzTIbPDxTPr5o0cGVr4JEanglOEGW7usTFJC5-fWMfa2DtZP9WwqglASjCL-6raCvHLAaXnD0-UIm55bsTMWaI2IKdsjYIIKhA0MDKs';
+                const primaryImg = (itemImages.length > 0) ? itemImages[0] : fallbackImg;
                 const itemPrice = parseFloat(item.price || 0);
                 const quantity = parseInt(item.quantity || 1, 10);
                 const totalItemPrice = itemPrice * quantity;
+                const isVerified = isOrderPhoneVerified(order.id);
 
                 itemsHtml += `
-                    <div class="rounded-xl p-4 sm:p-5 bg-[#fbf9f4] dark:bg-[#1f1a11] border border-[#ebe4d5] dark:border-[#2c2417] flex items-center justify-between gap-4 hover:border-gold-500/40 hover:shadow-md transition-all cursor-pointer group" onclick="openImageModal('${itemImg}', '${item.product_name}')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shrink-0 bg-stone-900 border border-gold-500/30 shadow-md relative">
-                                <img src="${itemImg}" alt="${item.product_name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://lh3.googleusercontent.com/aida-public/AB6AXuCOz3QfEB2xyyY-ViRm6nr0JwLMRIyFI-LAS8khGQVaFx5CRyvlNNnNL44TLRg4E5sM5bRz2arBm3aRasUgbcRO0q4YEK_bWpLkRlfbtRb_eBhYxVGRqKJN0S09arcWL5n24BRmRUBPQBT2zIzTIbPDxTPr5o0cGVr4JEanglOEGW7usTFJC5-fWMfa2DtZP9WwqglASjCL-6raCvHLAaXnD0-UIm55bsTMWaI2IKdsjYIIKhA0MDKs'">
-                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                                    <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                    <div class="rounded-2xl p-4 sm:p-5 bg-[#fbf9f4] dark:bg-[#1f1a11] border border-[#ebe4d5] dark:border-[#2c2417] flex flex-col justify-between gap-3.5 hover:border-gold-500/40 hover:shadow-md transition-all">
+                        <!-- القسم العلوي لبيانات الصنف -->
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <!-- صورة الصنف المظللة والمحمية بطلب الهاتف للأمان -->
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-gold-500/30 shadow-md relative group cursor-pointer" onclick="handleToggleItemImages(${item.id})" title="انقر لعرض صور الصنف المحمية">
+                                    <img src="${escapeHtml(primaryImg)}" alt="${escapeHtml(item.product_name)}" class="w-full h-full object-cover transition-all duration-300 ${!isVerified ? 'blur-[3px] scale-105 brightness-75' : 'group-hover:scale-105'}" onerror="this.src='${fallbackImg}'">
+                                    ${!isVerified ? `
+                                        <!-- تظليل منطقة الصور الشخصية بالكامل لحماية الخصوصية والأمان -->
+                                        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-gold-400 p-1 text-center transition-all group-hover:bg-black/70">
+                                            <span class="material-symbols-outlined text-[20px]">lock</span>
+                                            <span class="text-[9px] font-bold text-stone-200 mt-0.5 leading-tight">خاصة</span>
+                                        </div>
+                                    ` : `
+                                        ${hasMultipleImages ? `
+                                            <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md bg-black/85 text-gold-400 text-[10px] font-bold font-mono flex items-center gap-0.5 shadow">
+                                                <span class="material-symbols-outlined text-[12px]">photo_camera</span>
+                                                <span>${imagesCount}</span>
+                                            </div>
+                                        ` : `
+                                            <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                                <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                                            </div>
+                                        `}
+                                    `}
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <h4 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-snug truncate">
+                                        ${escapeHtml(item.product_name)}
+                                    </h4>
+                                    <div class="flex flex-wrap items-center gap-1.5 mt-1.5 text-xs text-stone-600 dark:text-[#a89d88]">
+                                        <span class="px-2 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-bold">العدد: ${quantity}</span>
+                                        ${hasMultipleImages ? `
+                                            <span class="px-2 py-0.5 rounded bg-gold-500/15 text-gold-700 dark:text-gold-400 font-bold flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[13px]">photo_library</span>
+                                                <span>${imagesCount} صور</span>
+                                            </span>
+                                        ` : `
+                                            <span class="px-2 py-0.5 rounded bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-400 font-medium text-[11px] flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[13px]">image</span>
+                                                <span>صورة الصنف</span>
+                                            </span>
+                                        `}
+                                        <span class="text-[11px] text-stone-500">سعر القطعة: ${itemPrice.toFixed(2)} د.أ</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex flex-col min-w-0">
-                                <h4 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-snug truncate group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
-                                    ${item.product_name}
-                                </h4>
-                                <div class="inline-flex items-center gap-2 mt-1.5 text-xs text-stone-600 dark:text-[#a89d88]">
-                                    <span class="px-2 py-0.5 rounded bg-gold-500/10 text-gold-700 dark:text-gold-400 font-bold">الكمية: ${quantity}</span>
-                                    <span>سعر القطعة: ${itemPrice.toFixed(2)} د.أ</span>
-                                </div>
+
+                            <div class="text-left shrink-0 font-mono font-bold text-stone-900 dark:text-gold-400 text-base sm:text-lg">
+                                ${totalItemPrice.toFixed(2)} <span class="text-xs font-sans font-normal text-stone-500">د.أ</span>
                             </div>
                         </div>
 
-                        <div class="text-left shrink-0 font-mono font-bold text-stone-900 dark:text-gold-400 text-base sm:text-lg">
-                            ${totalItemPrice.toFixed(2)} <span class="text-xs font-sans font-normal text-stone-500">د.أ</span>
+                        <!-- زر استعراض صور الصنف (مع حماية الخصوصية والتظليل لجميع الأصناف) -->
+                        <div class="pt-2 border-t border-[#ebe4d5] dark:border-[#2b2316]">
+                            <button 
+                                type="button" 
+                                id="toggle-btn-item-${item.id}"
+                                onclick="handleToggleItemImages(${item.id})"
+                                class="w-full py-2 px-3 rounded-xl ${isVerified ? 'bg-gold-500/20 hover:bg-gold-500/30 text-gold-700 dark:text-gold-300 border-gold-500/30' : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40'} active:scale-[0.99] font-bold text-xs border flex items-center justify-between transition-all cursor-pointer shadow-sm"
+                            >
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[17px] ${isVerified ? 'text-gold-500' : 'text-amber-500'}">${isVerified ? 'photo_library' : 'lock'}</span>
+                                    <span>صور الصنف ${imagesCount > 1 ? `(${imagesCount} صور)` : ''}</span>
+                                    ${!isVerified ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-semibold">مظللة للأمان</span>` : ''}
+                                </div>
+                                <div class="flex items-center gap-1 text-[11px]">
+                                    <span id="toggle-label-item-${item.id}">${isVerified ? 'عرض الصور' : 'عرض الصور الشخصية'}</span>
+                                    <span id="toggle-icon-item-${item.id}" class="material-symbols-outlined text-[16px]">${isVerified ? 'expand_more' : 'lock_open'}</span>
+                                </div>
+                            </button>
+
+                            <!-- منطقة معرض صور الصنف القابلة للفتح والطي (تفتح بعد التحقق برقم الهاتف) -->
+                            <div id="gallery-container-${item.id}" class="hidden mt-2.5 p-3 rounded-xl bg-[#141009] border border-gold-500/25 space-y-2.5 animate-in fade-in duration-300">
+                                <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#2d2516] text-xs">
+                                    <span class="text-stone-300 font-bold flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[15px] text-gold-500">collections</span>
+                                        <span>تصفح صور هذا الصنف (${imagesCount}):</span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button 
+                                            type="button" 
+                                            onclick="openItemGalleryModal(${item.id}, 0)" 
+                                            class="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-gold-300 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                                        >
+                                            <span class="material-symbols-outlined text-[14px]">zoom_out_map</span>
+                                            <span>تكبير ومعاينة</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- شبكة الصور المصغرة مع زر تنزيل لكل صورة بشكل مستقل ودون خيار تنزيل الكل -->
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-[320px] overflow-y-auto p-1 custom-scrollbar">
+                                    ${itemImages.map((imgUrl, idx) => `
+                                        <div class="relative group aspect-square rounded-xl overflow-hidden bg-black/60 border border-stone-800 hover:border-gold-500/60 shadow-sm cursor-pointer transition-all">
+                                            <img 
+                                                src="${escapeHtml(imgUrl)}" 
+                                                alt="${escapeHtml(item.product_name)} - صورة ${idx + 1}" 
+                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                onclick="openItemGalleryModal(${item.id}, ${idx})"
+                                            />
+                                            <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/75 text-[10px] font-mono font-bold text-white pointer-events-none">
+                                                ${idx + 1}/${imagesCount}
+                                            </span>
+                                            <!-- زر تنزيل الصورة الفردية في الزاوية -->
+                                            <a 
+                                                href="${escapeHtml(imgUrl)}" 
+                                                target="_blank" 
+                                                download 
+                                                onclick="event.stopPropagation()"
+                                                class="absolute top-1 left-1 w-6 h-6 rounded-full bg-black/70 hover:bg-gold-500 hover:text-stone-950 text-white flex items-center justify-center transition-all cursor-pointer shadow"
+                                                title="تنزيل هذه الصورة"
+                                            >
+                                                <span class="material-symbols-outlined text-[14px]">download</span>
+                                            </a>
+                                            <div 
+                                                class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none"
+                                            >
+                                                <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1228,28 +1571,29 @@
         if (buttonsContainer) {
             let buttonsHtml = '';
             
-            // 1. زر رابط الصفحة الذكي (فيسبوك، إنستغرام، تيك توك، سناب شات، موقع، متجر، أو إشعار بعدم تسجيل رابط)
+            // 1. زر رابط الصفحة الذكي (فيسبوك، إنستغرام، تيك توك، سناب شات، موقع، متجر إن وجد)
             buttonsHtml += renderPageLinkButton(pageUrl, pageName);
 
-            // 2. زر محادثة واتساب الموجه لرقم هاتف الصفحة الحقيقي فقط من السيرفر
+            // 2. زر محادثة واتساب (إما موجه لرقم هاتف الصفحة أو لواتساب خدمة العملاء العام)
             const waUrl = formatWhatsAppUrl(pagePhone, order.id, pageName);
             if (waUrl) {
                 buttonsHtml += `
                     <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
-                        <span>محادثة واتساب</span>
+                        <span>محادثة واتساب المتجر</span>
                     </a>
                 `;
             } else {
+                const customerCareMsg = encodeURIComponent(`مرحباً خدمة العملاء، أستفسر بخصوص الشحنة رقم #GL-${order.id}`);
                 buttonsHtml += `
-                    <button type="button" onclick="showToast('لم يتم تسجيل رقم هاتف لـ &quot;${escapeHtml(pageName || 'هذه الصفحة')}&quot; في قاعدة البيانات (عامود phone_number فارغ)')" class="px-3.5 py-2.5 rounded-xl bg-stone-100 dark:bg-[#201a12] text-stone-500 dark:text-[#8a7f6c] border border-dashed border-stone-300 dark:border-[#3d3320] text-xs font-semibold flex items-center gap-1.5 hover:border-gold-500/50 transition-all cursor-pointer shadow-sm" title="حقل phone_number فارغ في جدول pages">
-                        <span class="material-symbols-outlined text-[18px] text-stone-400">phone_disabled</span>
-                        <span>واتساب (الرقم غير مسجل)</span>
-                    </button>
+                    <a href="https://wa.me/962772816628?text=${customerCareMsg}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs">
+                        <span class="material-symbols-outlined text-[18px]">support_agent</span>
+                        <span>واتساب خدمة العملاء</span>
+                    </a>
                 `;
             }
 
-            // 3. زر الاتصال الهاتفي الطبيعي برقم هاتف الصفحة الحقيقي فقط من السيرفر
+            // 3. زر الاتصال الهاتفي الطبيعي إن وجد رقم مسجل
             const callUrl = getPhoneCallUrl(pagePhone);
             if (callUrl) {
                 buttonsHtml += `
@@ -1258,16 +1602,16 @@
                         <span>اتصال هاتفي</span>
                     </a>
                 `;
-            } else {
-                buttonsHtml += `
-                    <button type="button" onclick="showToast('لم يتم تسجيل رقم هاتف لـ &quot;${escapeHtml(pageName || 'هذه الصفحة')}&quot; في قاعدة البيانات (عامود phone_number فارغ)')" class="px-3.5 py-2.5 rounded-xl bg-stone-100 dark:bg-[#201a12] text-stone-500 dark:text-[#8a7f6c] border border-dashed border-stone-300 dark:border-[#3d3320] text-xs font-semibold flex items-center gap-1.5 hover:border-gold-500/50 transition-all cursor-pointer shadow-sm" title="حقل phone_number فارغ في جدول pages">
-                        <span class="material-symbols-outlined text-[18px] text-stone-400">call_end</span>
-                        <span>اتصال (الرقم غير مسجل)</span>
-                    </button>
-                `;
             }
 
             buttonsContainer.innerHTML = buttonsHtml;
+        }
+
+        // 5. نقل الواجهة العلوية (شعار تتبع الشحنات وبوابة الاستعلام والدعم) لتأتي بعد العنوان وتفاصيل الطلب وقائمة الأصناف
+        const headerElem = document.getElementById('main-app-header');
+        const slotElem = document.getElementById('order-tracking-header-slot');
+        if (headerElem && slotElem && headerElem.parentElement !== slotElem) {
+            slotElem.appendChild(headerElem);
         }
     }
 
@@ -1294,20 +1638,301 @@
         }
     }
 
-    function openImageModal(imgUrl, title) {
+    // --- دوال استخراج صور الأصناف وحزم الصور المتعددة والتحقق من الخصوصية ---
+    function extractItemImages(item) {
+        if (!item) return [];
+        let urls = [];
+        if (Array.isArray(item.image_urls)) {
+            urls = item.image_urls;
+        } else if (typeof item.image_urls === 'string') {
+            try {
+                const parsed = JSON.parse(item.image_urls);
+                if (Array.isArray(parsed)) urls = parsed;
+                else urls = [item.image_urls];
+            } catch (e) {
+                urls = item.image_urls.split(',').map(s => s.trim()).filter(Boolean);
+            }
+        } else if (item.image_url) {
+            urls = [item.image_url];
+        }
+        return urls.map(u => String(u).trim()).filter(u => u.length > 0 && !u.startsWith('[object'));
+    }
+
+    function cleanDigits(str) {
+        if (!str) return '';
+        return String(str).replace(/[^\d]/g, '');
+    }
+
+    // فحص هل تحقق العميل من رقم هاتفه لهذا الطلب مسبقاً
+    function isOrderPhoneVerified(orderId) {
+        if (!orderId) return false;
+        return sessionStorage.getItem('phone_verified_order_' + orderId) === 'true';
+    }
+
+    // التحقق من مطابقة الهاتف المدخل مع رقم هاتف المستلم المسجل بالطلب
+    function verifyPhoneMatch(inputStr, phone1, phone2) {
+        const input = cleanDigits(inputStr);
+        if (!input || input.length < 7) return false;
+        
+        const p1 = cleanDigits(phone1);
+        const p2 = cleanDigits(phone2);
+        
+        const checkMatch = (target) => {
+            if (!target) return false;
+            if (input === target) return true;
+            // مطابقة آخر 8 أو 9 أو 10 أرقام لتجاوز بادئات 00962 أو +962 أو 07
+            const compareLen = Math.min(8, Math.min(input.length, target.length));
+            if (compareLen >= 7) {
+                return input.slice(-compareLen) === target.slice(-compareLen);
+            }
+            return false;
+        };
+        
+        return checkMatch(p1) || checkMatch(p2);
+    }
+
+    // المتغيرات العامة للتحكم في معرض الصور المتعددة
+    window.currentGalleryItem = null;
+    window.currentGalleryIndex = 0;
+    window.pendingVerifyItemId = null;
+
+    // فتح وإغلاق صور الصنف (مع حماية الخصوصية بالتحقق من رقم الهاتف لجميع الأصناف والصور الشخصية)
+    function handleToggleItemImages(itemId) {
+        const order = window.currentLoadedOrder;
+        const item = (window.currentLoadedItems || []).find(i => String(i.id) === String(itemId));
+        if (!item || !order) return;
+
+        // التحقق الأمني إلزامي لجميع الأصناف قبل عرض صورها الخاصة
+        if (!isOrderPhoneVerified(order.id)) {
+            openPhoneVerifyModal(itemId);
+        } else {
+            toggleItemGalleryVisibility(itemId);
+        }
+    }
+
+    function toggleItemGalleryVisibility(itemId) {
+        const container = document.getElementById(`gallery-container-${itemId}`);
+        const label = document.getElementById(`toggle-label-item-${itemId}`);
+        const icon = document.getElementById(`toggle-icon-item-${itemId}`);
+        if (!container) return;
+
+        const isCurrentlyHidden = container.classList.contains('hidden');
+        if (isCurrentlyHidden) {
+            container.classList.remove('hidden');
+            if (label) label.innerText = 'إخفاء الصور';
+            if (icon) icon.innerText = 'expand_less';
+        } else {
+            container.classList.add('hidden');
+            if (label) label.innerText = 'عرض الصور';
+            if (icon) icon.innerText = 'expand_more';
+        }
+    }
+
+    // فتح نافذة التحقق الأمني لعرض الصور الخاصة
+    function openPhoneVerifyModal(itemId) {
+        window.pendingVerifyItemId = itemId;
+        const modal = document.getElementById('phone-verification-modal');
+        const input = document.getElementById('verify-phone-input');
+        const errorElem = document.getElementById('verify-phone-error');
+
+        if (errorElem) errorElem.classList.add('hidden');
+        if (input) {
+            input.value = '';
+            input.classList.remove('border-rose-500');
+        }
+
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+
+    function closePhoneVerifyModal() {
+        const modal = document.getElementById('phone-verification-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        window.pendingVerifyItemId = null;
+    }
+
+    function handlePhoneVerificationSubmit(event) {
+        if (event) event.preventDefault();
+        const input = document.getElementById('verify-phone-input');
+        const errorElem = document.getElementById('verify-phone-error');
+        const order = window.currentLoadedOrder;
+        const val = input ? input.value.trim() : '';
+
+        if (!order) return;
+
+        const isMatch = verifyPhoneMatch(val, order.customer_phone, order.customer_phone_2);
+        if (isMatch) {
+            sessionStorage.setItem('phone_verified_order_' + order.id, 'true');
+            
+            const targetItemId = window.pendingVerifyItemId;
+            closePhoneVerifyModal();
+            showToast('تم تأكيد الهوية بنجاح، تم رفع التظليل ويمكنك الآن استعراض كافة الصور');
+
+            // إعادة رسم الأصناف فوراً لفك التظليل عن جميع الصور
+            if (window.currentLoadedItems && window.currentLoadedOrder) {
+                renderUI(window.currentLoadedOrder, window.currentLoadedItems, window.currentLoadedLogs || [], window.currentLoadedPageData);
+            }
+
+            if (targetItemId) {
+                setTimeout(() => {
+                    const container = document.getElementById(`gallery-container-${targetItemId}`);
+                    const label = document.getElementById(`toggle-label-item-${targetItemId}`);
+                    const icon = document.getElementById(`toggle-icon-item-${targetItemId}`);
+                    if (container) {
+                        container.classList.remove('hidden');
+                        if (label) label.innerText = 'إخفاء الصور';
+                        if (icon) icon.innerText = 'expand_less';
+                        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 50);
+            }
+        } else {
+            if (errorElem) {
+                errorElem.classList.remove('hidden');
+            }
+            if (input) {
+                input.classList.add('border-rose-500');
+                input.focus();
+            }
+        }
+    }
+
+    // فتح المودال لصورة مفردة (مع حماية الأمان)
+    function openSingleImageModal(imgUrl, title) {
+        const order = window.currentLoadedOrder;
+        if (order && !isOrderPhoneVerified(order.id)) {
+            openPhoneVerifyModal(null);
+            return;
+        }
+
+        window.currentGalleryItem = null;
+        window.currentGalleryIndex = 0;
+        
         const modal = document.getElementById('image-modal');
         const modalImg = document.getElementById('modal-img');
         const modalTitle = document.getElementById('modal-title');
+        const prevBtn = document.getElementById('modal-prev-btn');
+        const nextBtn = document.getElementById('modal-next-btn');
+        const counter = document.getElementById('modal-counter');
+        const dlBtn = document.getElementById('modal-download-btn');
+
         if (modal && modalImg) {
             modalImg.src = imgUrl;
-            if (modalTitle) modalTitle.innerText = title;
+            if (modalTitle) modalTitle.innerText = title || 'معاينة المنتج';
+            if (prevBtn) prevBtn.classList.add('hidden');
+            if (nextBtn) nextBtn.classList.add('hidden');
+            if (counter) counter.innerText = '';
+            if (dlBtn) dlBtn.href = imgUrl;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
     }
 
+    // فتح المودال لمعرض حزمة صور صنف (مع حماية الأمان)
+    function openItemGalleryModal(itemId, imageIndex) {
+        const order = window.currentLoadedOrder;
+        if (order && !isOrderPhoneVerified(order.id)) {
+            openPhoneVerifyModal(itemId);
+            return;
+        }
+
+        const item = (window.currentLoadedItems || []).find(i => String(i.id) === String(itemId));
+        if (!item) return;
+
+        const images = extractItemImages(item);
+        if (images.length === 0) return;
+
+        window.currentGalleryItem = item;
+        window.currentGalleryIndex = (imageIndex >= 0 && imageIndex < images.length) ? imageIndex : 0;
+        updateModalGalleryView();
+
+        const modal = document.getElementById('image-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function updateModalGalleryView() {
+        if (!window.currentGalleryItem) return;
+        const images = extractItemImages(window.currentGalleryItem);
+        const total = images.length;
+        const currentIdx = window.currentGalleryIndex;
+        const imgUrl = images[currentIdx];
+
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const prevBtn = document.getElementById('modal-prev-btn');
+        const nextBtn = document.getElementById('modal-next-btn');
+        const counter = document.getElementById('modal-counter');
+        const dlBtn = document.getElementById('modal-download-btn');
+
+        if (modalImg) modalImg.src = imgUrl;
+        if (modalTitle) modalTitle.innerText = `${window.currentGalleryItem.product_name} (صورة ${currentIdx + 1} من ${total})`;
+        if (counter) counter.innerText = `صورة ${currentIdx + 1} من ${total}`;
+        if (dlBtn) dlBtn.href = imgUrl;
+
+        if (total > 1) {
+            if (prevBtn) prevBtn.classList.remove('hidden');
+            if (nextBtn) nextBtn.classList.remove('hidden');
+        } else {
+            if (prevBtn) prevBtn.classList.add('hidden');
+            if (nextBtn) nextBtn.classList.add('hidden');
+        }
+    }
+
+    function navigateModalImage(dir) {
+        if (!window.currentGalleryItem) return;
+        const images = extractItemImages(window.currentGalleryItem);
+        const total = images.length;
+        if (total <= 1) return;
+
+        window.currentGalleryIndex = (window.currentGalleryIndex + dir + total) % total;
+        updateModalGalleryView();
+    }
+
+    function openImageModal(imgUrl, title) {
+        openSingleImageModal(imgUrl, title);
+    }
+
     function closeImageModal() {
         const modal = document.getElementById('image-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        window.currentGalleryItem = null;
+    }
+
+    // Modal صورة العربون المدفوع مسبقاً
+    function openDepositImageModal(depositImgUrl, orderId, depositAmount) {
+        const modal = document.getElementById('deposit-image-modal');
+        const img = document.getElementById('deposit-modal-img');
+        const dlBtn = document.getElementById('deposit-download-btn');
+        const subtitle = document.getElementById('deposit-modal-subtitle');
+        const amountLabel = document.getElementById('deposit-modal-amount-label');
+
+        if (img) img.src = depositImgUrl;
+        if (dlBtn) dlBtn.href = depositImgUrl;
+        if (subtitle && orderId) subtitle.innerText = `رقم الطلب: #GL-${orderId}`;
+        if (amountLabel && depositAmount) amountLabel.innerText = `قيمة العربون المدفوع: ${depositAmount} د.أ`;
+
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function closeDepositImageModal() {
+        const modal = document.getElementById('deposit-image-modal');
         if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
@@ -1329,6 +1954,25 @@
             if (icon) icon.innerText = 'light_mode';
             localStorage.setItem('gl_theme', 'dark');
         }
+    }
+
+    function handleHeaderSearchSubmit(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('header-search-input');
+        const val = input ? input.value : '';
+        const cleanId = val.trim().replace('#', '').replace('GL-', '').replace('gl-', '').replace('order-', '');
+        if (!cleanId) {
+            // إذا ترك مربع البحث فارغاً وضغط أيقونة البحث ينتقل فوراً إلى الصفحة الرئيسية للبحث
+            showSearchHome();
+            return;
+        }
+        if (isNaN(cleanId)) {
+            showToast('يرجى إدخال رقم طلب صحيح مكون من أرقام');
+            if (input) input.focus();
+            return;
+        }
+        window.history.pushState({ orderId: cleanId }, '', `/order/${cleanId}`);
+        fetchOrderData(cleanId);
     }
 
     function handleMainSearchSubmit(e) {
