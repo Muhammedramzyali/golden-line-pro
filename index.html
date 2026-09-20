@@ -229,11 +229,14 @@
                     <span class="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
                 </div>
                 <div>
-                    <h3 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">جاري جلب بيانات الطلب من السيرفر المعتمد...</h3>
+                    <h3 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">جاري جلب بيانات الطلب من قاعدة البيانات المعتمدة...</h3>
                     <p class="text-xs text-stone-500 dark:text-[#9e927c]">يرجى الانتظار لحظات للتحقق وتحديث خط السير المباشر</p>
                 </div>
             </div>
-            <span class="text-xs font-mono font-bold text-gold-600 dark:text-gold-400">SUPABASE LIVE</span>
+            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
+                <span>تحديث مباشر</span>
+            </div>
         </div>
 
         <div class="h-44 bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] rounded-2xl p-6 space-y-4">
@@ -461,7 +464,7 @@
     </div>
 </div>
 
-<!-- Modal حماية خصوصية الصور الشخصية برقم الهاتف كاملاً -->
+<!-- Modal حماية خصوصية الصور الخاصة برقم الهاتف كاملاً -->
 <div id="phone-verification-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 animate-in fade-in" onclick="closePhoneVerifyModal()">
     <div class="max-w-md w-full bg-[#1c1710] border border-gold-500/50 rounded-2xl overflow-hidden shadow-2xl p-6 relative" onclick="event.stopPropagation()">
         <button type="button" onclick="closePhoneVerifyModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-stone-800/80 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
@@ -475,7 +478,7 @@
             
             <div class="space-y-1">
                 <h3 class="text-base sm:text-lg font-bold text-stone-100 flex items-center justify-center gap-1.5">
-                    <span>التحقق الأمني للصور الشخصية</span>
+                    <span>التحقق الأمني للصور الخاصة</span>
                 </h3>
                 <p class="text-xs text-stone-400 leading-relaxed px-2">
                     لأغراض الأمان، قم بوضع رقم الهاتف الأساسي أو البديل لاستعراض الصور نظراً لأنها صور خاصة.
@@ -577,6 +580,13 @@
             document.body.insertBefore(headerElem, mainElem);
         }
 
+        // إخفاء زر واتساب الدعم في الهيدر لعدم وجود طلب أو صفحة نشطة حالياً
+        const headerSupportBtn = document.getElementById('header-support-btn');
+        if (headerSupportBtn) headerSupportBtn.classList.add('hidden');
+
+        window.currentLoadedPage = null;
+        window.currentLoadedOrder = null;
+
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('error-state').classList.add('hidden');
         document.getElementById('main-content').classList.add('hidden');
@@ -626,6 +636,13 @@
             document.body.insertBefore(headerElem, mainElem);
         }
 
+        // إخفاء زر واتساب الدعم في الهيدر لعدم وجود طلب نشط
+        const headerSupportBtn = document.getElementById('header-support-btn');
+        if (headerSupportBtn) headerSupportBtn.classList.add('hidden');
+
+        window.currentLoadedPage = null;
+        window.currentLoadedOrder = null;
+
         const homeDiv = document.getElementById('search-home-state');
         if (homeDiv) homeDiv.classList.add('hidden');
 
@@ -636,7 +653,7 @@
         document.getElementById('error-message').innerText = message;
     }
 
-    // 3. جلب البيانات من السيرفر
+    // 3. جلب البيانات من قاعدة البيانات / الخادم
     async function fetchOrderData(orderId) {
         try {
             const homeDiv = document.getElementById('search-home-state');
@@ -692,7 +709,7 @@
             renderUI(order, itemsData || [], pageData);
 
         } catch (error) {
-            showError("حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة لاحقاً.");
+            showError("حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى المحاولة لاحقاً.");
             console.error(error);
         }
     }
@@ -724,17 +741,15 @@
         if (waUrl) {
             window.open(waUrl, '_blank');
         } else {
-            // في حال عدم توفر رقم مخصص للصفحة، يتم التحويل مباشرة لواتساب خدمة العملاء والدعم العام
-            const fallbackMsg = encodeURIComponent(`مرحباً خدمة العملاء، أود الاستفسار والمساعدة بخصوص الشحنة رقم #GL-${window.currentLoadedOrder.id}`);
-            window.open(`https://wa.me/962772816628?text=${fallbackMsg}`, '_blank');
+            showToast('لا يتوفر رقم واتساب مسجل لهذه الصفحة في جدول الصفحات');
         }
     }
 
-    // دالة إنشاء رابط محادثة واتساب موجه لرقم الصفحة مع رسالة مهيئة برقم الطلب
+    // دالة إنشاء رابط محادثة واتساب موجه لرقم الصفحة مع رسالة مهيئة برقم الطلب (ترجع null إذا لم يكن هناك رقم هاتف حقيقي في جدول الصفحات)
     function formatWhatsAppUrl(rawPhone, orderId, pageName) {
         if (!rawPhone) return null;
         let clean = String(rawPhone).replace(/[^0-9]/g, '');
-        if (!clean) return null;
+        if (!clean || clean.length < 7) return null;
         if (clean.startsWith('00')) clean = clean.substring(2);
         if (clean.startsWith('0')) {
             clean = '962' + clean.substring(1);
@@ -747,11 +762,11 @@
         return `https://wa.me/${clean}?text=${msg}`;
     }
 
-    // دالة استخراج رابط الاتصال الهاتفي الطبيعي
+    // دالة استخراج رابط الاتصال الهاتفي الطبيعي (ترجع null إذا لم يكن هناك رقم هاتف مسجل)
     function getPhoneCallUrl(rawPhone) {
         if (!rawPhone) return null;
-        const clean = String(rawPhone).trim();
-        if (!clean) return null;
+        let clean = String(rawPhone).replace(/[^0-9+]/g, '');
+        if (!clean || clean.replace(/\D/g, '').length < 7) return null;
         return `tel:${clean}`;
     }
 
@@ -839,7 +854,7 @@
         });
     }
 
-    // دالة ذكية لتحديد حالة ومرحلة الطلب بناءً على بيانات السيرفر الحقيقية (8 حالات من جدول order_statuses مدمجة في 5 مراحل واضحة)
+    // دالة ذكية لتحديد حالة ومرحلة الطلب بناءً على بيانات الخادم الحقيقية (8 حالات من جدول order_statuses مدمجة في 5 مراحل واضحة)
     function resolveOrderStatus(statusId, rawStatus) {
         const sId = parseInt(statusId, 10);
         const text = (rawStatus || '').toLowerCase();
@@ -1430,7 +1445,7 @@
                                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-gold-500/30 shadow-md relative group cursor-pointer" onclick="handleToggleItemImages(${item.id})" title="انقر لعرض صور الصنف المحمية">
                                     <img src="${escapeHtml(primaryImg)}" alt="${escapeHtml(item.product_name)}" class="w-full h-full object-cover transition-all duration-300 ${!isVerified ? 'blur-[3px] scale-105 brightness-75' : 'group-hover:scale-105'}" onerror="this.src='${fallbackImg}'">
                                     ${!isVerified ? `
-                                        <!-- تظليل منطقة الصور الشخصية بالكامل لحماية الخصوصية والأمان -->
+                                        <!-- تظليل منطقة الصور الخاصة بالكامل لحماية الخصوصية والأمان -->
                                         <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-gold-400 p-1 text-center transition-all group-hover:bg-black/70">
                                             <span class="material-symbols-outlined text-[20px]">lock</span>
                                             <span class="text-[9px] font-bold text-stone-200 mt-0.5 leading-tight">خاصة</span>
@@ -1489,7 +1504,7 @@
                                     ${!isVerified ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-semibold">مظللة للأمان</span>` : ''}
                                 </div>
                                 <div class="flex items-center gap-1 text-[11px]">
-                                    <span id="toggle-label-item-${item.id}">${isVerified ? 'عرض الصور' : 'عرض الصور الشخصية'}</span>
+                                    <span id="toggle-label-item-${item.id}">${isVerified ? 'عرض الصور' : 'عرض الصور الخاصة'}</span>
                                     <span id="toggle-icon-item-${item.id}" class="material-symbols-outlined text-[16px]">${isVerified ? 'expand_more' : 'lock_open'}</span>
                                 </div>
                             </button>
@@ -1557,44 +1572,42 @@
         itemsHtml += `</div>`;
         document.getElementById('order-items').innerHTML = itemsHtml;
 
-        // 4. تذييل خدمة العملاء الخاص بالصفحة المستوردة ديناميكياً
+        // 4. تذييل خدمة العملاء الخاص بالصفحة المستوردة ديناميكياً من جدول pages
+        const supportFooterElem = document.getElementById('order-support-footer');
         const supportTextElem = document.getElementById('support-team-label');
-        if (supportTextElem) {
-            if (pageName) {
-                supportTextElem.innerHTML = `فريق خدمة عملاء <strong class="text-stone-900 dark:text-gold-300 font-bold">${escapeHtml(pageName)}</strong> مستعد لمساعدتك يومياً من ٩ ص حتى ١٠ م.`;
+        const buttonsContainer = document.getElementById('support-buttons-container');
+
+        const waUrl = formatWhatsAppUrl(pagePhone, order.id, pageName);
+        const callUrl = getPhoneCallUrl(pagePhone);
+        const pageLinkBtnHtml = renderPageLinkButton(pageUrl, pageName);
+
+        // تحديث زر واتساب الدعم في شريط الهيدر: يظهر فقط إذا كان هناك رقم هاتف فعلي في جدول الصفحات
+        const headerSupportBtn = document.getElementById('header-support-btn');
+        if (headerSupportBtn) {
+            if (waUrl) {
+                headerSupportBtn.classList.remove('hidden');
             } else {
-                supportTextElem.innerText = `فريق خدمة العملاء مستعد لمساعدتك يومياً من ٩ ص حتى ١٠ م.`;
+                headerSupportBtn.classList.add('hidden');
             }
         }
 
-        const buttonsContainer = document.getElementById('support-buttons-container');
         if (buttonsContainer) {
             let buttonsHtml = '';
             
             // 1. زر رابط الصفحة الذكي (فيسبوك، إنستغرام، تيك توك، سناب شات، موقع، متجر إن وجد)
-            buttonsHtml += renderPageLinkButton(pageUrl, pageName);
+            buttonsHtml += pageLinkBtnHtml;
 
-            // 2. زر محادثة واتساب (إما موجه لرقم هاتف الصفحة أو لواتساب خدمة العملاء العام)
-            const waUrl = formatWhatsAppUrl(pagePhone, order.id, pageName);
+            // 2. زر محادثة واتساب: يظهر فقط وفقط إذا كان هناك رقم هاتف موجود في جدول الصفحات
             if (waUrl) {
                 buttonsHtml += `
                     <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
-                        <span>محادثة واتساب المتجر</span>
-                    </a>
-                `;
-            } else {
-                const customerCareMsg = encodeURIComponent(`مرحباً خدمة العملاء، أستفسر بخصوص الشحنة رقم #GL-${order.id}`);
-                buttonsHtml += `
-                    <a href="https://wa.me/962772816628?text=${customerCareMsg}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs">
-                        <span class="material-symbols-outlined text-[18px]">support_agent</span>
-                        <span>واتساب خدمة العملاء</span>
+                        <span>محادثة واتساب ${escapeHtml(pageName || 'الصفحة')}</span>
                     </a>
                 `;
             }
 
-            // 3. زر الاتصال الهاتفي الطبيعي إن وجد رقم مسجل
-            const callUrl = getPhoneCallUrl(pagePhone);
+            // 3. زر الاتصال الهاتفي الطبيعي إن وجد رقم مسجل في جدول الصفحات
             if (callUrl) {
                 buttonsHtml += `
                     <a href="${callUrl}" class="px-4 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-stone-950 font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs">
@@ -1605,6 +1618,29 @@
             }
 
             buttonsContainer.innerHTML = buttonsHtml;
+        }
+
+        if (supportTextElem) {
+            if (waUrl || callUrl) {
+                if (pageName) {
+                    supportTextElem.innerHTML = `فريق خدمة عملاء <strong class="text-stone-900 dark:text-gold-300 font-bold">${escapeHtml(pageName)}</strong> مستعد لمساعدتك يومياً من ٩ ص حتى ١٠ م.`;
+                } else {
+                    supportTextElem.innerText = `فريق خدمة العملاء مستعد لمساعدتك يومياً من ٩ ص حتى ١٠ م.`;
+                }
+            } else if (pageLinkBtnHtml) {
+                supportTextElem.innerHTML = pageName ? `يمكنك متابعة وتصفح حساب صفحة <strong class="text-stone-900 dark:text-gold-300 font-bold">${escapeHtml(pageName)}</strong> عبر الرابط.` : `يمكنك متابعة وتصفح صفحة المتجر عبر الرابط.`;
+            } else {
+                supportTextElem.innerText = `تفضل بمراجعة تفاصيل طلبك وحالته المحدثة أعلاه.`;
+            }
+        }
+
+        // إذا لم يكن هناك رقم هاتف (لا واتساب ولا اتصال) ولا رابط للصفحة، نخفي قسم التذييل كاملاً حتى لا تظهر كلمة واتساب أو خيار مراسلة
+        if (supportFooterElem) {
+            if (!waUrl && !callUrl && !pageLinkBtnHtml) {
+                supportFooterElem.classList.add('hidden');
+            } else {
+                supportFooterElem.classList.remove('hidden');
+            }
         }
 
         // 5. نقل الواجهة العلوية (شعار تتبع الشحنات وبوابة الاستعلام والدعم) لتأتي بعد العنوان وتفاصيل الطلب وقائمة الأصناف
@@ -1696,7 +1732,7 @@
     window.currentGalleryIndex = 0;
     window.pendingVerifyItemId = null;
 
-    // فتح وإغلاق صور الصنف (مع حماية الخصوصية بالتحقق من رقم الهاتف لجميع الأصناف والصور الشخصية)
+    // فتح وإغلاق صور الصنف (مع حماية الخصوصية بالتحقق من رقم الهاتف لجميع الأصناف والصور الخاصة)
     function handleToggleItemImages(itemId) {
         const order = window.currentLoadedOrder;
         const item = (window.currentLoadedItems || []).find(i => String(i.id) === String(itemId));
