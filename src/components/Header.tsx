@@ -29,13 +29,35 @@ export const Header: React.FC<HeaderProps> = ({
           
           {/* في الهاتف: اللوجو بسطر لوحده أولاً ثم الكلمات في السطر الثاني | في الكمبيوتر: بجانب بعضهما */}
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2.5 sm:gap-3.5 text-center sm:text-right">
-            {/* 1. اللوجو في سطر لوحده على الهاتف */}
-            <div className="w-14 h-14 sm:w-11 sm:h-11 rounded-2xl sm:rounded-xl bg-[#1b1710] border border-gold-500/40 p-1.5 sm:p-1 flex items-center justify-center shadow-md shrink-0">
+            {/* 1. اللوجو المعتمد للمشروع (ic_logo_golden.png) بحجم واضح وفخم */}
+            <div className="relative w-16 h-16 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#2a2215] via-[#1b1710] to-[#0f0c07] border-2 border-gold-500/50 p-1 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group">
               <img
-                src="https://lh3.googleusercontent.com/aida/AEtjO1UZ2StPdi3KWqVvyC49xL_g4arlSJR6RMT97k7Flz0Lmog3bxKcby0bVaIFsDMYRXJPMoDY3jtMebF2apF0mqOEN7kCABM-WsPjKL-nLain7fAOKFwPhAS943sGl4aAQXKd_lxAXxcEIIbhmKqVPL9dgIsLhhRcPufKtP_iRJSDdCR88ac-S6zU4NqIGmz4vioEQG8u1MEbP12QfBEBwzfaLpr-TzYaFnsha_q3TroaYcXCoPbiR-0f0A5V9QAYb2dfAchqHcJdng"
+                src="/ic_logo_golden.png"
                 alt="Golden Line"
-                className="w-full h-full object-contain brightness-110"
+                className="w-full h-full object-contain rounded-xl brightness-105"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fb = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fb) fb.classList.remove('hidden');
+                }}
               />
+              {/* Fallback Luxury Golden Line SVG Emblem */}
+              <div className="hidden w-full h-full flex flex-col items-center justify-center text-center select-none pointer-events-none">
+                <div className="relative flex items-center justify-center">
+                  <svg className="w-8 h-8 sm:w-7 sm:h-7 text-gold-400 fill-current drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)]" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                    <polygon points="12 2 2 7 12 12 22 7 12 2" fill="url(#goldGradHeader)"/>
+                    <defs>
+                      <linearGradient id="goldGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ffe58f"/>
+                        <stop offset="50%" stopColor="#d4af37"/>
+                        <stop offset="100%" stopColor="#9e7a17"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+                <span className="text-[9px] sm:text-[8px] font-extrabold tracking-widest text-gold-400 uppercase mt-0.5 leading-none font-sans">GOLDEN</span>
+              </div>
             </div>
 
             {/* 2. السطر الثاني على الهاتف: الكلمات نظام التتبع والشارة والوصف */}
@@ -45,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
                   جولدن لاين
                 </h1>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 font-semibold border border-gold-500/30">
-                  بوابة الاستعلام الموحدة
+                  بوابة الاستعلام
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-[#a89d88] font-medium">
