@@ -1,5 +1,5 @@
 {
-  "name": "منظومة تتبع الشحنات والطلبات",
+  "name": "نظام تتبع الشحنات والطلبات",
   "description": "بوابة متطورة لاستيراد وتتبع مسار الطلبات والشحنات خطوة بخطوة والتفاصيل المالية المعتمدة للعملاء",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

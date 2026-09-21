@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="/">
     <title>نظام تتبع الشحنات والطلبات | بوابة التتبع للطلبات المثبتة مسبقا</title>
+    <link rel="icon" type="image/png" href="/ic_logo_golden.png">
+    <link rel="apple-touch-icon" href="/ic_logo_golden.png">
     
     <!-- Google Fonts & Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,22 +74,41 @@
         
         <!-- في الهاتف: اللوجو بسطر لوحده أولاً ثم الكلمات في السطر الثاني | في الكمبيوتر: بجانب بعضهما -->
         <div class="flex flex-col sm:flex-row items-center sm:items-center gap-2.5 sm:gap-3.5 text-center sm:text-right">
-            <!-- 1. اللوجو في سطر لوحده على الهاتف -->
-            <div class="w-14 h-14 sm:w-11 sm:h-11 rounded-2xl sm:rounded-xl bg-[#1b1710] border border-gold-500/40 p-1.5 sm:p-1 flex items-center justify-center shadow-md shrink-0">
+            <!-- 1. اللوجو المعتمد للمشروع (ic_logo_golden.png) بحجم واضح وفخم -->
+            <div class="relative w-16 h-16 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#2a2215] via-[#1b1710] to-[#0f0c07] border-2 border-gold-500/50 p-1 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group">
                 <img 
-                    src="https://lh3.googleusercontent.com/aida/AEtjO1UZ2StPdi3KWqVvyC49xL_g4arlSJR6RMT97k7Flz0Lmog3bxKcby0bVaIFsDMYRXJPMoDY3jtMebF2apF0mqOEN7kCABM-WsPjKL-nLain7fAOKFwPhAS943sGl4aAQXKd_lxAXxcEIIbhmKqVPL9dgIsLhhRcPufKtP_iRJSDdCR88ac-S6zU4NqIGmz4vioEQG8u1MEbP12QfBEBwzfaLpr-TzYaFnsha_q3TroaYcXCoPbiR-0f0A5V9QAYb2dfAchqHcJdng" 
+                    id="brand-header-logo-img"
+                    src="/ic_logo_golden.png" 
                     alt="Golden Line" 
-                    class="w-full h-full object-contain brightness-110"
+                    class="w-full h-full object-contain rounded-xl brightness-105"
+                    onerror="this.style.display='none'; const fb = document.getElementById('logo-vector-fallback'); if(fb) fb.classList.remove('hidden');"
                 >
+                <!-- Fallback Luxury Golden Line SVG Emblem (احتياطي دائم) -->
+                <div id="logo-vector-fallback" class="hidden w-full h-full flex flex-col items-center justify-center text-center select-none pointer-events-none">
+                    <div class="relative flex items-center justify-center">
+                        <svg class="w-8 h-8 sm:w-7 sm:h-7 text-gold-400 fill-current drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)]" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" fill="url(#goldGrad)"/>
+                            <defs>
+                                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffe58f"/>
+                                    <stop offset="50%" stop-color="#d4af37"/>
+                                    <stop offset="100%" stop-color="#9e7a17"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span class="text-[9px] sm:text-[8px] font-extrabold tracking-widest text-gold-400 uppercase mt-0.5 leading-none font-sans">GOLDEN</span>
+                </div>
             </div>
 
             <!-- 2. السطر الثاني على الهاتف: الكلمات نظام التتبع والشارة والوصف -->
             <div class="flex flex-col items-center sm:items-start gap-1">
                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <h1 class="text-base sm:text-lg font-bold tracking-tight text-stone-900 dark:text-gold-400">نظام تتبع الشحنات</h1>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 font-semibold border border-gold-500/30">بوابة الاستعلام الموحدة</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 font-semibold border border-gold-500/30">بوابة الإستعلام  </span>
                 </div>
-                <p class="text-xs text-stone-500 dark:text-[#a89d88] font-medium">متابعة مسار الطلب والتجهيز والتسليم </p>
+                <p class="text-xs text-stone-500 dark:text-[#a89d88] font-medium">متابعة مسار الطلبات   </p>
             </div>
         </div>
 
@@ -143,10 +164,11 @@
 <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
     
     <!-- الشاشة الرئيسية: صندوق بحث كبير للاستعلام عن الطلبات دون عرض أي طلب تلقائياً -->
-    <div id="search-home-state" class="hidden flex flex-col items-center justify-center text-center py-6 sm:py-12 animate-in fade-in duration-300">
+    <div id="search-home-state" class="hidden flex flex-col items-center justify-start text-center pt-2 sm:pt-4 pb-8 sm:pb-12 animate-in fade-in duration-300">
         <div class="w-full max-w-xl mx-auto space-y-6">
             
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 border border-gold-500/30 text-xs font-bold shadow-sm">
+                <img src="/ic_logo_golden.png" alt="Golden Line" class="w-4 h-4 rounded-full object-contain">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
                 <span>بوابة الاستعلام  </span>
             </div>
@@ -170,7 +192,7 @@
                         <input 
                             type="text" 
                             id="main-order-input" 
-                            placeholder="أدخل رقم الطلب هنا (مثال: 1067)" 
+                            placeholder="أدخل رقم الطلب هنا" 
                             dir="rtl"
                             autocomplete="off"
                             class="w-full min-w-0 bg-transparent text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none px-1"
@@ -307,12 +329,7 @@
             <!-- سيتم حقن منطقة تم تثبيت طلبك وتأكيد البيانات ومنطقة الطلب جاري العمل عليه وتفاصيل الحساب المالي هنا عبر JS -->
         </div>
 
-        <!-- 4. الواجهة العلوية (شعار تتبع الشحنات وبوابة الاستعلام وأزرار المساعدة) تأتي هنا بعد تفاصيل وأصناف الطلب -->
-        <div id="order-tracking-header-slot" class="rounded-2xl overflow-hidden border border-[#ded5c2] dark:border-[#2d2516] shadow-md">
-            <!-- سيتم نقل الواجهة العلوية إلى هنا عند استعراض الطلب -->
-        </div>
-
-        <!-- 5. حالة الطلب ومسار التوصيل والمراحل -->
+        <!-- 4. حالة الطلب ومسار التوصيل والمراحل -->
         <div id="order-status" class="rounded-2xl bg-[#ffffff] dark:bg-[#18140c] border border-[#ded5c2] dark:border-[#2f2719] p-5 sm:p-7 shadow-sm transition-colors">
             <!-- سيتم حقن البيانات هنا عبر JS -->
         </div>
@@ -573,7 +590,7 @@
 
     // إظهار الشاشة الرئيسية المخصصة للبحث والاستعلام
     function showSearchHome() {
-        // إعادة الواجهة العلوية إلى موضعها الطبيعي في قمة الصفحة فوق شاشة الاستعلام
+        // التأكد من وجود الواجهة العلوية في قمة الصفحة
         const headerElem = document.getElementById('main-app-header');
         const mainElem = document.querySelector('main');
         if (headerElem && mainElem && headerElem.parentElement !== document.body) {
@@ -656,6 +673,13 @@
     // 3. جلب البيانات من قاعدة البيانات / الخادم
     async function fetchOrderData(orderId) {
         try {
+            // تثبيت الواجهة العلوية (نظام تتبع الشحنات) دائماً في قمة الصفحة فوق كل المحتويات
+            const headerElem = document.getElementById('main-app-header');
+            const mainElem = document.querySelector('main');
+            if (headerElem && mainElem && headerElem.parentElement !== document.body) {
+                document.body.insertBefore(headerElem, mainElem);
+            }
+
             const homeDiv = document.getElementById('search-home-state');
             if (homeDiv) homeDiv.classList.add('hidden');
 
@@ -1266,7 +1290,7 @@
 
                         <div class="flex items-center gap-2 text-xs text-stone-500 dark:text-[#9e927c] pt-1">
                             <span class="material-symbols-outlined text-[16px] text-gold-500">verified_user</span>
-                            <span>يحق للعميل معاينة ومطابقة الطلب قبل تسديد المبلغ المتبقي.</span>
+                            <span>يحق للعميل معاينة ومطابقة الطلب قبل الإستلام.</span>
                         </div>
                     </div>
                 </div>
@@ -1643,11 +1667,11 @@
             }
         }
 
-        // 5. نقل الواجهة العلوية (شعار تتبع الشحنات وبوابة الاستعلام والدعم) لتأتي بعد العنوان وتفاصيل الطلب وقائمة الأصناف
+        // 5. الواجهة العلوية (نظام تتبع الشحنات وبوابة الاستعلام السريع والدعم) تظل دائماً في أعلى قمة الصفحة
         const headerElem = document.getElementById('main-app-header');
-        const slotElem = document.getElementById('order-tracking-header-slot');
-        if (headerElem && slotElem && headerElem.parentElement !== slotElem) {
-            slotElem.appendChild(headerElem);
+        const mainElem = document.querySelector('main');
+        if (headerElem && mainElem && headerElem.parentElement !== document.body) {
+            document.body.insertBefore(headerElem, mainElem);
         }
     }
 
