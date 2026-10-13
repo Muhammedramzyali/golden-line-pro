@@ -16,6 +16,14 @@
   ],
   "rewrites": [
     {
+      "source": "/order/:id*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/orders/:id*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/((?!.well-known).*)",
       "destination": "/index.html"
     }
