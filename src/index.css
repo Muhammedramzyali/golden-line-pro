@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-gold-300: #f7dc78;
+  --color-gold-400: #f2ca50;
+  --color-gold-500: #d4af37;
+  --color-gold-600: #b8941f;
+  --color-gold-700: #8e6f10;
+}
+
+@layer base {
+  html, body {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #ffe58f 0%, #d4af37 50%, #9e7a17 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border-glow {
+  box-shadow: 0 0 25px -5px rgba(212, 175, 55, 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #433c2e;
+  border-radius: 9999px;
+}
