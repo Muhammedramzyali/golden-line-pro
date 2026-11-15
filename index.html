@@ -783,6 +783,38 @@
         }
     }
 
+    function formatWaitTime(seconds) {
+        const s = Math.max(60, parseInt(seconds || 0, 10));
+        const hours = Math.floor(s / 3600);
+        const mins = Math.ceil((s % 3600) / 60);
+        if (hours > 0) {
+            return mins > 0 ? `${hours} ساعة و ${mins} دقيقة` : `${hours} ساعة`;
+        }
+        return `${mins} دقيقة`;
+    }
+
+    function applyUnlockedMediaCache(order, itemsData) {
+        if (!order || !order.id) return;
+        const raw = safeStorageGet('unlocked_media_order_' + order.id, true);
+        if (!raw) return;
+        try {
+            const cached = JSON.parse(raw);
+            if (cached && typeof cached === 'object') {
+                if (cached.deposit_image_url) {
+                    order.deposit_image_url = cached.deposit_image_url;
+                }
+                if (Array.isArray(cached.items) && Array.isArray(itemsData)) {
+                    const map = new Map(cached.items.map(it => [String(it.id), it.image_urls]));
+                    itemsData.forEach(item => {
+                        if (map.has(String(item.id))) {
+                            item.image_urls = map.get(String(item.id));
+                        }
+                    });
+                }
+            }
+        } catch (e) {}
+    }
+
     // 3. جلب البيانات من قاعدة البيانات / الخادم (مع دعم الاستعلام برقم الطلب أو برقم هاتف العميل)
     async function fetchOrderData(rawId) {
         const cleanId = normalizeInputId(rawId);
@@ -813,6 +845,7 @@
             let order = null;
             let pageData = null;
             let itemsData = [];
+            let rateLimitPayload = null;
 
             try {
                 const rpcRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/get_public_order_tracking`, {
@@ -827,16 +860,26 @@
 
                 if (rpcRes.ok) {
                     const payload = await rpcRes.json();
-                    if (payload && payload.found && payload.order) {
+                    if (payload && payload.rate_limited) {
+                        rateLimitPayload = payload;
+                    } else if (payload && payload.found && payload.order) {
                         order = payload.order;
                         pageData = payload.page || null;
                         itemsData = Array.isArray(payload.items) ? payload.items : [];
+                        applyUnlockedMediaCache(order, itemsData);
                     }
                 } else {
                     console.warn("Tracking RPC returned status:", rpcRes.status);
                 }
             } catch (fetchErr) {
                 console.warn("Tracking RPC fetch failed:", fetchErr);
+            }
+
+            if (rateLimitPayload) {
+                const limitCount = rateLimitPayload.limit_per_day || 5;
+                const waitStr = formatWaitTime(rateLimitPayload.retry_after_seconds);
+                showError(`تم الوصول إلى الحد اليومي المسموح للاستعلام عن طلبات مختلفة (${limitCount} طلبات يومياً) لحماية خصوصية البيانات. يمكنك إعادة المحاولة بعد ${waitStr}.`);
+                return;
             }
 
             // إذا لم يتم العثور على أي طلب
@@ -1226,7 +1269,9 @@ ${orderTrackingUrl}`;
         }
 
         // العربون المدفوع مسبقاً (يظهر فقط إن وجد عربون مسجل في قاعدة البيانات)
+        const isOrderVerified = isOrderPhoneVerified(order.id);
         const depositImageUrl = (order.deposit_image_url && String(order.deposit_image_url).trim().length > 0) ? String(order.deposit_image_url).trim() : null;
+        const hasDepositImage = Boolean(order.has_deposit_image || depositImageUrl);
         const depositPaidBadge = deposit > 0 
             ? `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
                 <div class="flex items-center gap-2.5">
@@ -1237,10 +1282,10 @@ ${orderTrackingUrl}`;
                     </div>
                 </div>
                 <div class="flex items-center justify-between sm:justify-end gap-3">
-                    ${depositImageUrl ? `
-                        <button type="button" onclick="openDepositImageModal('${escapeHtml(depositImageUrl)}', '${order.id}', '${deposit.toFixed(2)}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
-                            <span class="material-symbols-outlined text-[16px]">receipt_long</span>
-                            <span>عرض صورة العربون</span>
+                    ${hasDepositImage ? `
+                        <button type="button" onclick="handleOpenDepositImage('${deposit.toFixed(2)}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${isOrderVerified ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/40'} active:scale-95 font-bold text-xs shadow-sm transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">${isOrderVerified ? 'receipt_long' : 'lock'}</span>
+                            <span>${isOrderVerified ? 'عرض صورة العربون' : 'صورة العربون (محمية)'}</span>
                         </button>
                     ` : ''}
                     <div class="text-left font-mono font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
@@ -1344,20 +1389,20 @@ ${orderTrackingUrl}`;
                             </div>
                             <div class="min-w-0 flex-1">
                                 <span class="text-stone-400 dark:text-[#8a7e6b] block text-[11px] font-bold mb-1">وجهة التسليم والعنوان المسجل:</span>
-                                <p class="font-extrabold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-snug break-words">${address}</p>
+                                <p class="font-extrabold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-snug break-words">${escapeHtml(address)}</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-4 pt-2.5 border-t border-[#ebe4d5] dark:border-[#2c2417] text-xs">
                             <div class="flex items-center gap-2 text-stone-700 dark:text-[#c4b8a4]">
                                 <span class="material-symbols-outlined text-[18px] text-gold-500">perm_phone_msg</span>
                                 <span class="text-stone-500 dark:text-[#8a7e6b]">هاتف الاستلام الأساسي:</span>
-                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${maskedPhone}</span>
+                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${escapeHtml(maskedPhone)}</span>
                             </div>
                             ${maskedPhone2 ? `
                             <div class="flex items-center gap-2 text-stone-700 dark:text-[#c4b8a4]">
                                 <span class="material-symbols-outlined text-[18px] text-gold-500">phone_iphone</span>
                                 <span class="text-stone-500 dark:text-[#8a7e6b]">رقم بديل:</span>
-                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${maskedPhone2}</span>
+                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100" dir="ltr">${escapeHtml(maskedPhone2)}</span>
                             </div>
                             ` : ''}
                         </div>
@@ -1584,10 +1629,10 @@ ${orderTrackingUrl}`;
                             <span class="w-2 h-2 rounded-full ${index === 0 ? 'bg-gold-500' : 'bg-stone-400'} mt-1.5 shrink-0"></span>
                             <div class="flex-1">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-bold text-stone-900 dark:text-stone-100">${log.title} ${log.user ? '(' + log.user + ')' : ''}</span>
-                                    <span class="text-[11px] font-mono text-gold-600 dark:text-gold-400">${log.time}</span>
+                                    <span class="font-bold text-stone-900 dark:text-stone-100">${escapeHtml(log.title)} ${log.user ? '(' + escapeHtml(log.user) + ')' : ''}</span>
+                                    <span class="text-[11px] font-mono text-gold-600 dark:text-gold-400">${escapeHtml(log.time)}</span>
                                 </div>
-                                <p class="text-stone-600 dark:text-[#a89d88] mt-0.5 leading-relaxed">${log.description}</p>
+                                <p class="text-stone-600 dark:text-[#a89d88] mt-0.5 leading-relaxed">${escapeHtml(log.description)}</p>
                             </div>
                         </div>
                     `;
@@ -1621,31 +1666,30 @@ ${orderTrackingUrl}`;
 
         if (items.length > 0) {
             items.forEach(item => {
-                const itemImages = extractItemImages(item);
-                const imagesCount = itemImages.length > 0 ? itemImages.length : parseInt(item.image_quantity || 1, 10);
-                const hasMultipleImages = itemImages.length > 1;
+                const isVerified = isOrderPhoneVerified(order.id);
+                const itemImages = isVerified ? extractItemImages(item) : [];
+                const imagesCount = Math.max(parseInt(item.image_quantity || 1, 10), itemImages.length);
+                const hasMultipleImages = imagesCount > 1;
                 const primaryImg = (itemImages.length > 0) ? itemImages[0] : fallbackImg;
                 // استيراد السعر الفعلي للصنف مباشرة من عمود price في قاعدة البيانات دون أي ضرب حسابي أو افتراضات خاطئة
                 const itemPrice = parseFloat(item.price || 0);
                 const quantity = parseInt(item.quantity || 1, 10);
                 const totalItemPrice = itemPrice;
-                const isVerified = isOrderPhoneVerified(order.id);
 
                 itemsHtml += `
                     <div class="rounded-2xl p-4 sm:p-5 bg-[#fbf9f4] dark:bg-[#1f1a11] border border-[#ebe4d5] dark:border-[#2c2417] flex flex-col justify-between gap-3.5 hover:border-gold-500/40 hover:shadow-md transition-all">
                         <!-- القسم العلوي لبيانات الصنف -->
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3.5 min-w-0">
-                                <!-- صورة الصنف المظللة والمحمية بطلب الهاتف للأمان -->
-                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-gold-500/30 shadow-md relative group cursor-pointer" onclick="handleToggleItemImages(${item.id})" title="انقر لعرض صور الصنف المحمية">
-                                    <img src="${escapeHtml(primaryImg)}" alt="${escapeHtml(item.product_name)}" class="w-full h-full object-cover transition-all duration-300 ${!isVerified ? 'blur-[3px] scale-105 brightness-75' : 'group-hover:scale-105'}" onerror="this.src='${fallbackImg}'">
+                                <!-- صورة الصنف المحمية: لا يتم حقن روابط الصور الحقيقية في DOM قبل التحقق برقم الهاتف -->
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br from-[#231d12] to-[#120e08] border border-gold-500/30 shadow-md relative group cursor-pointer" onclick="handleToggleItemImages(${item.id})" title="انقر لعرض صور الصنف المحمية">
                                     ${!isVerified ? `
-                                        <!-- تظليل منطقة الصور الخاصة بالكامل لحماية الخصوصية والأمان -->
-                                        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-gold-400 p-1 text-center transition-all group-hover:bg-black/70">
-                                            <span class="material-symbols-outlined text-[20px]">lock</span>
-                                            <span class="text-[9px] font-bold text-stone-200 mt-0.5 leading-tight">خاصة</span>
+                                        <div class="w-full h-full flex flex-col items-center justify-center text-gold-400 p-1 text-center transition-all group-hover:bg-black/40">
+                                            <span class="material-symbols-outlined text-[22px]">lock</span>
+                                            <span class="text-[9px] font-bold text-stone-200 mt-0.5 leading-tight">خاصة (${imagesCount})</span>
                                         </div>
                                     ` : `
+                                        <img src="${escapeHtml(primaryImg)}" alt="${escapeHtml(item.product_name)}" class="w-full h-full object-cover transition-all duration-300 group-hover:scale-105" onerror="this.src='${fallbackImg}'">
                                         ${hasMultipleImages ? `
                                             <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md bg-black/85 text-gold-400 text-[10px] font-bold font-mono flex items-center gap-0.5 shadow">
                                                 <span class="material-symbols-outlined text-[12px]">photo_camera</span>
@@ -1893,16 +1937,30 @@ ${orderTrackingUrl}`;
         return String(str).replace(/[^\d]/g, '');
     }
 
-    // فحص هل تحقق العميل من رقم هاتفه لهذا الطلب مسبقاً
+    // فحص هل تحقق العميل من رقم هاتفه لهذا الطلب مسبقاً وتم جلب الروابط المحمية
     function isOrderPhoneVerified(orderId) {
         if (!orderId) return false;
-        return safeStorageGet('phone_verified_order_' + orderId, true) === 'true';
+        return safeStorageGet('phone_verified_order_' + orderId, true) === 'true'
+            && Boolean(safeStorageGet('unlocked_media_order_' + orderId, true));
     }
 
     // المتغيرات العامة للتحكم في معرض الصور المتعددة
     window.currentGalleryItem = null;
     window.currentGalleryIndex = 0;
     window.pendingVerifyItemId = null;
+    window.pendingVerifyTarget = 'item';
+    window.pendingDepositAmount = null;
+
+    function handleOpenDepositImage(depositAmount) {
+        const order = window.currentLoadedOrder;
+        if (!order) return;
+        if (!isOrderPhoneVerified(order.id) || !order.deposit_image_url) {
+            window.pendingDepositAmount = depositAmount;
+            openPhoneVerifyModal(null, 'deposit');
+            return;
+        }
+        openDepositImageModal(order.deposit_image_url, order.id, depositAmount);
+    }
 
     // فتح وإغلاق صور الصنف (مع حماية الخصوصية بالتحقق من رقم الهاتف لجميع الأصناف والصور الخاصة)
     function handleToggleItemImages(itemId) {
@@ -1912,7 +1970,7 @@ ${orderTrackingUrl}`;
 
         // التحقق الأمني إلزامي لجميع الأصناف قبل عرض صورها الخاصة
         if (!isOrderPhoneVerified(order.id)) {
-            openPhoneVerifyModal(itemId);
+            openPhoneVerifyModal(itemId, 'item');
         } else {
             toggleItemGalleryVisibility(itemId);
         }
@@ -1937,8 +1995,9 @@ ${orderTrackingUrl}`;
     }
 
     // فتح نافذة التحقق الأمني لعرض الصور الخاصة
-    function openPhoneVerifyModal(itemId) {
+    function openPhoneVerifyModal(itemId, target = 'item') {
         window.pendingVerifyItemId = itemId;
+        window.pendingVerifyTarget = target;
         const modal = document.getElementById('phone-verification-modal');
         const input = document.getElementById('verify-phone-input');
         const errorElem = document.getElementById('verify-phone-error');
@@ -1965,6 +2024,7 @@ ${orderTrackingUrl}`;
             modal.classList.remove('flex');
         }
         window.pendingVerifyItemId = null;
+        window.pendingVerifyTarget = 'item';
     }
 
     async function handlePhoneVerificationSubmit(event) {
@@ -1992,8 +2052,9 @@ ${orderTrackingUrl}`;
 
         let isMatch = false;
         let networkError = false;
+        let unlockPayload = null;
         try {
-            const verifyRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/verify_public_order_phone`, {
+            const verifyRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/unlock_public_order_media`, {
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_KEY,
@@ -2004,8 +2065,8 @@ ${orderTrackingUrl}`;
             }, 8000);
 
             if (verifyRes.ok) {
-                const verified = await verifyRes.json();
-                isMatch = verified === true;
+                unlockPayload = await verifyRes.json();
+                isMatch = Boolean(unlockPayload && unlockPayload.verified === true);
             } else {
                 networkError = true;
             }
@@ -2016,19 +2077,28 @@ ${orderTrackingUrl}`;
             if (submitBtn) submitBtn.disabled = false;
         }
 
-        if (isMatch) {
+        if (isMatch && unlockPayload) {
             safeStorageSet('phone_verified_order_' + order.id, 'true', true);
-            
-            const targetItemId = window.pendingVerifyItemId;
-            closePhoneVerifyModal();
-            showToast('تم تأكيد الهوية بنجاح، تم رفع التظليل ويمكنك الآن استعراض كافة الصور');
+            safeStorageSet('unlocked_media_order_' + order.id, JSON.stringify({
+                deposit_image_url: unlockPayload.deposit_image_url || null,
+                items: Array.isArray(unlockPayload.items) ? unlockPayload.items : []
+            }), true);
 
-            // إعادة رسم الأصناف فوراً لفك التظليل عن جميع الصور
+            applyUnlockedMediaCache(window.currentLoadedOrder, window.currentLoadedItems);
+
+            const targetItemId = window.pendingVerifyItemId;
+            const targetType = window.pendingVerifyTarget;
+            const depositAmt = window.pendingDepositAmount || parseFloat(order.deposit_amount || 0).toFixed(2);
+            closePhoneVerifyModal();
+            showToast('تم تأكيد الهوية بنجاح، تم فتح الصور المحمية');
+
             if (window.currentLoadedItems && window.currentLoadedOrder) {
                 renderUI(window.currentLoadedOrder, window.currentLoadedItems, window.currentLoadedPage);
             }
 
-            if (targetItemId) {
+            if (targetType === 'deposit' && window.currentLoadedOrder && window.currentLoadedOrder.deposit_image_url) {
+                openDepositImageModal(window.currentLoadedOrder.deposit_image_url, order.id, depositAmt);
+            } else if (targetItemId) {
                 setTimeout(() => {
                     const container = document.getElementById(`gallery-container-${targetItemId}`);
                     const label = document.getElementById(`toggle-label-item-${targetItemId}`);
@@ -2043,9 +2113,16 @@ ${orderTrackingUrl}`;
             }
         } else {
             if (errorTextElem) {
-                errorTextElem.innerText = networkError
-                    ? 'تعذر التحقق من الاتصال بالخادم، يرجى المحاولة مرة أخرى.'
-                    : 'رقم الهاتف غير مطابق لرقم المستلم المسجل بالطلب.';
+                if (networkError) {
+                    errorTextElem.innerText = 'تعذر التحقق من الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                } else if (unlockPayload && unlockPayload.locked) {
+                    const waitStr = formatWaitTime(unlockPayload.retry_after_seconds || 1800);
+                    errorTextElem.innerText = `تم تجاوز الحد الأقصى لمحاولات التحقق. يرجى المحاولة بعد ${waitStr}.`;
+                } else if (unlockPayload && typeof unlockPayload.remaining_attempts === 'number') {
+                    errorTextElem.innerText = `رقم الهاتف غير مطابق (المحاولات المتبقية: ${unlockPayload.remaining_attempts}).`;
+                } else {
+                    errorTextElem.innerText = 'رقم الهاتف غير مطابق لرقم المستلم المسجل بالطلب.';
+                }
             }
             if (errorElem) {
                 errorElem.classList.remove('hidden');
@@ -2166,6 +2243,10 @@ ${orderTrackingUrl}`;
 
     // Modal صورة العربون المدفوع مسبقاً
     function openDepositImageModal(depositImgUrl, orderId, depositAmount) {
+        if (!orderId || !isOrderPhoneVerified(orderId) || !depositImgUrl) {
+            if (orderId) openPhoneVerifyModal(orderId, 'deposit');
+            return;
+        }
         const modal = document.getElementById('deposit-image-modal');
         const img = document.getElementById('deposit-modal-img');
         const dlBtn = document.getElementById('deposit-download-btn');
