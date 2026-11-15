@@ -1,20 +1,12 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# نظام تتبع الشحنات والطلبات - Golden Line Pro
 
-# Run and deploy your AI Studio app
+بوابة الويب الرسمية للاستعلام عن حالة الطلبات والشحنات والتفاصيل المالية المعتمدة لعملاء Golden Line.
 
-This contains everything you need to run your app locally.
+## التشغيل المحلي
 
-View your app in AI Studio: https://ai.studio/apps/403fb9ae-add2-4c39-9fc6-64a5117427e8
+**المتطلبات:** Node.js
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. تثبيت الحزم:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. تشغيل التطبيق محلياً:
    `npm run dev`

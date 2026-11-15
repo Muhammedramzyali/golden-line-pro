@@ -811,99 +811,38 @@
             if (sessionBadge) sessionBadge.innerText = `SESSION: #GL-ORDER-${cleanId}`;
 
             let order = null;
-            const isPureNumber = /^\d+$/.test(cleanId);
+            let pageData = null;
+            let itemsData = [];
 
-            // 1. إذا كان المدخل رقماً، نبحث أولاً في عمود id (رقم الطلب)
-            if (isPureNumber) {
-                try {
-                    const orderRes = await fetchWithTimeout(`${SUPABASE_URL}/orders?id=eq.${cleanId}&select=*`, {
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                    }, 8000);
-                    if (orderRes.ok) {
-                        const parsed = await orderRes.json();
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            order = parsed[0];
-                        }
-                    } else if (orderRes.status === 400) {
-                        console.warn("Supabase 400 Bad Request on order ID query");
+            try {
+                const rpcRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/get_public_order_tracking`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ p_query: cleanId })
+                }, 8000);
+
+                if (rpcRes.ok) {
+                    const payload = await rpcRes.json();
+                    if (payload && payload.found && payload.order) {
+                        order = payload.order;
+                        pageData = payload.page || null;
+                        itemsData = Array.isArray(payload.items) ? payload.items : [];
                     }
-                } catch (fetchErr) {
-                    console.warn("Direct order ID fetch failed, will try phone fallback if applicable:", fetchErr);
-                    if (fetchErr && (fetchErr.name === 'AbortError' || fetchErr.name === 'TypeError' || String(fetchErr).includes('Failed to fetch'))) {
-                        // محاولة الاستعلام بالهاتف إن كان مدخلاً طويلاً
-                    }
+                } else {
+                    console.warn("Tracking RPC returned status:", rpcRes.status);
                 }
-            }
-
-            // 2. إذا لم يتم العثور على الطلب برقم المعرف، أو كان المدخل يشبه رقم هاتف (أكثر من 6 أرقام)
-            if (!order && isPureNumber && cleanId.length >= 7) {
-                try {
-                    // فحص تطابق هاتف العميل الأساسي
-                    const phoneRes = await fetchWithTimeout(`${SUPABASE_URL}/orders?customer_phone=eq.${cleanId}&order=id.desc&limit=1&select=*`, {
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                    }, 8000);
-                    if (phoneRes.ok) {
-                        const parsed = await phoneRes.json();
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            order = parsed[0];
-                        }
-                    }
-
-                    // إن لم يُعثر عليه، فحص رقم هاتف العميل البديل
-                    if (!order) {
-                        const phone2Res = await fetchWithTimeout(`${SUPABASE_URL}/orders?customer_phone_2=eq.${cleanId}&order=id.desc&limit=1&select=*`, {
-                            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                        }, 8000);
-                        if (phone2Res.ok) {
-                            const parsed = await phone2Res.json();
-                            if (Array.isArray(parsed) && parsed.length > 0) {
-                                order = parsed[0];
-                            }
-                        }
-                    }
-                } catch (phoneErr) {
-                    console.warn("Phone lookup fallback error:", phoneErr);
-                }
+            } catch (fetchErr) {
+                console.warn("Tracking RPC fetch failed:", fetchErr);
             }
 
             // إذا لم يتم العثور على أي طلب
             if (!order) {
                 showError(`عذراً، لم يتم العثور على أي شحنة بالرقم (#${escapeHtml(cleanId)}). يرجى التأكد من كتابة رقم الطلب المسجل بشكل صحيح أو رقم الهاتف المعتمد في الطلب.`);
                 return;
-            }
-
-            // جلب معلومات الصفحة المرتبطة بالطلب من جدول pages
-            let pageData = null;
-            if (order.page_id) {
-                try {
-                    const pageRes = await fetchWithTimeout(`${SUPABASE_URL}/pages?id=eq.${order.page_id}&select=*`, {
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                    }, 6000);
-                    if (pageRes.ok) {
-                        const pageList = await pageRes.json();
-                        if (Array.isArray(pageList) && pageList.length > 0) {
-                            pageData = pageList[0];
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Could not load page info:", e);
-                }
-            }
-
-            // جلب منتجات الطلب
-            let itemsData = [];
-            try {
-                const itemsRes = await fetchWithTimeout(`${SUPABASE_URL}/order_items?order_id=eq.${order.id}&select=*`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                }, 6000);
-                if (itemsRes.ok) {
-                    const parsedItems = await itemsRes.json();
-                    if (Array.isArray(parsedItems)) {
-                        itemsData = parsedItems;
-                    }
-                }
-            } catch (e) {
-                console.warn("Could not load items:", e);
             }
 
             // ضمان تزامن شريط مسار المتصفح مع مسار الطلب /order/{id}
@@ -1223,8 +1162,8 @@ ${orderTrackingUrl}`;
             return str.slice(0, 3) + '****';
         };
 
-        const maskedPhone = maskPhoneNumber(order.customer_phone) || 'غير متوفر';
-        const maskedPhone2 = maskPhoneNumber(order.customer_phone_2);
+        const maskedPhone = order.masked_phone || maskPhoneNumber(order.customer_phone) || 'غير متوفر';
+        const maskedPhone2 = order.masked_phone_2 || maskPhoneNumber(order.customer_phone_2);
         const address = order.delivery_address ? order.delivery_address.trim() : 'العنوان قيد التنسيق';
         const statusInfo = resolveOrderStatus(order.status_id, order.status);
         const logs = parseStatusLogs(order.status);
@@ -1960,28 +1899,6 @@ ${orderTrackingUrl}`;
         return safeStorageGet('phone_verified_order_' + orderId, true) === 'true';
     }
 
-    // التحقق من مطابقة الهاتف المدخل مع رقم هاتف المستلم المسجل بالطلب
-    function verifyPhoneMatch(inputStr, phone1, phone2) {
-        const input = cleanDigits(inputStr);
-        if (!input || input.length < 7) return false;
-        
-        const p1 = cleanDigits(phone1);
-        const p2 = cleanDigits(phone2);
-        
-        const checkMatch = (target) => {
-            if (!target) return false;
-            if (input === target) return true;
-            // مطابقة آخر 8 أو 9 أو 10 أرقام لتجاوز بادئات 00962 أو +962 أو 07
-            const compareLen = Math.min(8, Math.min(input.length, target.length));
-            if (compareLen >= 7) {
-                return input.slice(-compareLen) === target.slice(-compareLen);
-            }
-            return false;
-        };
-        
-        return checkMatch(p1) || checkMatch(p2);
-    }
-
     // المتغيرات العامة للتحكم في معرض الصور المتعددة
     window.currentGalleryItem = null;
     window.currentGalleryIndex = 0;
@@ -2050,16 +1967,55 @@ ${orderTrackingUrl}`;
         window.pendingVerifyItemId = null;
     }
 
-    function handlePhoneVerificationSubmit(event) {
+    async function handlePhoneVerificationSubmit(event) {
         if (event) event.preventDefault();
         const input = document.getElementById('verify-phone-input');
         const errorElem = document.getElementById('verify-phone-error');
+        const errorTextElem = document.getElementById('verify-phone-error-text');
+        const submitBtn = event && event.target ? event.target.querySelector('button[type="submit"]') : null;
         const order = window.currentLoadedOrder;
         const val = input ? input.value.trim() : '';
 
         if (!order) return;
 
-        const isMatch = verifyPhoneMatch(val, order.customer_phone, order.customer_phone_2);
+        if (cleanDigits(val).length < 7) {
+            if (errorTextElem) errorTextElem.innerText = 'رقم الهاتف غير مطابق لرقم المستلم المسجل بالطلب.';
+            if (errorElem) errorElem.classList.remove('hidden');
+            if (input) {
+                input.classList.add('border-rose-500');
+                input.focus();
+            }
+            return;
+        }
+
+        if (submitBtn) submitBtn.disabled = true;
+
+        let isMatch = false;
+        let networkError = false;
+        try {
+            const verifyRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/verify_public_order_phone`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ p_order_id: Number(order.id), p_phone: val })
+            }, 8000);
+
+            if (verifyRes.ok) {
+                const verified = await verifyRes.json();
+                isMatch = verified === true;
+            } else {
+                networkError = true;
+            }
+        } catch (err) {
+            console.warn("Phone verification RPC error:", err);
+            networkError = true;
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+
         if (isMatch) {
             safeStorageSet('phone_verified_order_' + order.id, 'true', true);
             
@@ -2086,6 +2042,11 @@ ${orderTrackingUrl}`;
                 }, 50);
             }
         } else {
+            if (errorTextElem) {
+                errorTextElem.innerText = networkError
+                    ? 'تعذر التحقق من الاتصال بالخادم، يرجى المحاولة مرة أخرى.'
+                    : 'رقم الهاتف غير مطابق لرقم المستلم المسجل بالطلب.';
+            }
             if (errorElem) {
                 errorElem.classList.remove('hidden');
             }
