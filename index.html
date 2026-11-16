@@ -6,6 +6,13 @@
     <base href="/">
     <title>نظام تتبع الشحنات والطلبات | بوابة التتبع للطلبات المثبتة مسبقا</title>
     <meta name="description" content="بوابة Golden Line الرسمية للاستعلام الفوري عن حالة الطلبات والشحنات ومراحل التجهيز والتوصيل.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Golden Line Pro">
+    <meta property="og:title" content="نظام تتبع الشحنات والطلبات | Golden Line">
+    <meta property="og:description" content="تابع حالة طلبك وشحنتك ومراحل التجهيز والتوصيل مباشرة عبر بوابة التتبع الرسمية.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="نظام تتبع الشحنات والطلبات | Golden Line">
+    <meta name="twitter:description" content="تابع حالة طلبك وشحنتك ومراحل التجهيز والتوصيل مباشرة عبر بوابة التتبع الرسمية.">
     <link rel="icon" type="image/png" href="/ic_logo_golden.png">
     <link rel="apple-touch-icon" href="/ic_logo_golden.png">
 
@@ -200,6 +207,28 @@
 
 <!-- Main Container -->
 <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- تنبيه ذكي يظهر فقط داخل متصفحات فيسبوك / ماسنجر / إنستغرام المدمجة -->
+    <div id="in-app-browser-banner" class="hidden mb-4 rounded-xl bg-amber-500/10 border border-amber-500/35 px-3.5 py-2.5 text-right gl-fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex items-start gap-2 min-w-0 flex-1">
+                <span data-icon="open_in_new" data-size="18" class="text-amber-600 dark:text-gold-400 shrink-0 mt-0.5"></span>
+                <div class="text-[11px] sm:text-xs text-stone-700 dark:text-stone-200 leading-relaxed">
+                    <span class="font-bold text-stone-900 dark:text-gold-300">تصفح أسرع وأكثر استقراراً:</span>
+                    <span id="in-app-browser-hint">أنت تتصفح داخل متصفح التطبيق المدمج؛ إذا واجهت بطئاً أو مشكلة اتصال اضغط القائمة بالأعلى (⋮) واختر «فتح في المتصفح».</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a id="open-external-browser-btn" href="#" class="hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gold-500 hover:bg-gold-400 text-stone-950 font-bold text-[11px] shadow-sm transition-all">
+                    <span data-icon="open_in_new" data-size="14"></span>
+                    <span>فتح في Chrome</span>
+                </a>
+                <button type="button" onclick="dismissInAppBanner()" aria-label="إغلاق التنبيه" class="p-1 rounded-lg text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-white/10 transition-colors cursor-pointer">
+                    <span data-icon="close" data-size="16"></span>
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- الشاشة الرئيسية: صندوق بحث كبير للاستعلام عن الطلبات دون عرض أي طلب تلقائياً -->
     <div id="search-home-state" class="hidden flex flex-col items-center justify-start text-center pt-2 sm:pt-4 pb-8 sm:pb-12 gl-fade-in">
@@ -342,7 +371,7 @@
                 <span data-icon="arrow_forward" data-size="16"></span>
                 <span>العودة لشاشة الاستعلام الرئيسية</span>
             </button>
-            <button type="button" onclick="window.location.reload()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-stone-200 dark:bg-[#251f15] hover:bg-stone-300 dark:hover:bg-[#2f271a] text-stone-800 dark:text-gold-300 text-xs font-bold transition-all cursor-pointer">
+            <button type="button" onclick="retryLastOrderFetch()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-stone-200 dark:bg-[#251f15] hover:bg-stone-300 dark:hover:bg-[#2f271a] text-stone-800 dark:text-gold-300 text-xs font-bold transition-all cursor-pointer">
                 <span data-icon="refresh" data-size="16"></span>
                 <span>إعادة المحاولة</span>
             </button>
@@ -800,6 +829,7 @@
 
         window.currentLoadedPage = null;
         window.currentLoadedOrder = null;
+        window.lastAttemptedOrderQuery = null;
 
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('error-state').classList.add('hidden');
@@ -813,6 +843,7 @@
         if (window.location.pathname !== '/' || window.location.search) {
             safePushState({}, '', '/');
         }
+        updateExternalBrowserIntentLink();
 
         setTimeout(() => {
             const input = document.getElementById('main-order-input');
@@ -864,8 +895,63 @@
         document.getElementById('error-message').innerText = message;
     }
 
-    // دالة جلب مع مهلة زمنية 8 ثوانٍ
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    // كشف متصفحات فيسبوك / ماسنجر / إنستغرام المدمجة وتحديث رابط الفتح في Chrome
+    function isFacebookInAppBrowser() {
+        if (typeof navigator === 'undefined') return false;
+        return /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger|Instagram/i.test(navigator.userAgent || '');
+    }
+
+    function updateExternalBrowserIntentLink() {
+        const btn = document.getElementById('open-external-browser-btn');
+        if (!btn) return;
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
+        const isAndroid = /Android/i.test(ua);
+        if (isAndroid && window.location && window.location.protocol === 'https:') {
+            const currentUrl = window.location.href;
+            const hostAndPath = window.location.host + window.location.pathname + window.location.search;
+            const intentHref = 'intent://' + hostAndPath + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(currentUrl) + ';end';
+            btn.setAttribute('href', intentHref);
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    function initInAppBrowserBanner() {
+        if (!isFacebookInAppBrowser()) return;
+        if (safeStorageGet('gl_iab_banner_dismissed', true) === '1') return;
+        const banner = document.getElementById('in-app-browser-banner');
+        if (!banner) return;
+        updateExternalBrowserIntentLink();
+        const hintEl = document.getElementById('in-app-browser-hint');
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
+        if (hintEl && /iPhone|iPad|iPod/i.test(ua)) {
+            hintEl.textContent = 'أنت تتصفح داخل متصفح التطبيق المدمج؛ إذا واجهت بطئاً أو مشكلة اتصال اضغط رمز المشاركة/النقاط بالأعلى أو الأسفل واختر «فتح في Safari».';
+        }
+        banner.classList.remove('hidden');
+    }
+
+    function dismissInAppBanner() {
+        safeStorageSet('gl_iab_banner_dismissed', '1', true);
+        const banner = document.getElementById('in-app-browser-banner');
+        if (banner) banner.classList.add('hidden');
+    }
+
+    function retryLastOrderFetch() {
+        if (window.lastAttemptedOrderQuery) {
+            fetchOrderData(window.lastAttemptedOrderQuery, false);
+            return;
+        }
+        const urlOrder = getOrderIdFromUrl();
+        if (urlOrder) {
+            fetchOrderData(urlOrder, false);
+            return;
+        }
+        window.location.reload();
+    }
+
+    // دالة جلب مع مهلة زمنية وإعادة محاولة تلقائية للشبكات البطيئة داخل متصفح الماسنجر
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         try {
@@ -876,6 +962,31 @@
             clearTimeout(timeoutId);
             throw err;
         }
+    }
+
+    async function fetchWithRetry(url, options = {}, timeoutMs = 15000, maxRetries = 1) {
+        let lastError = null;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const res = await fetchWithTimeout(url, options, timeoutMs);
+                if (res.status >= 500 && attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                    continue;
+                }
+                return res;
+            } catch (err) {
+                lastError = err;
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    throw err;
+                }
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                    continue;
+                }
+                throw err;
+            }
+        }
+        throw lastError;
     }
 
     function formatWaitTime(seconds) {
@@ -913,6 +1024,9 @@
     // 3. جلب البيانات من قاعدة البيانات / الخادم (مع دعم الاستعلام برقم الطلب أو برقم هاتف العميل)
     async function fetchOrderData(rawId, pushHistory = false) {
         const cleanId = normalizeInputId(rawId);
+        if (cleanId) {
+            window.lastAttemptedOrderQuery = cleanId;
+        }
 
         try {
             const headerElem = document.getElementById('main-app-header');
@@ -939,7 +1053,7 @@
             let rateLimitPayload = null;
             let serverFailed = false;
 
-            const rpcRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/get_public_order_tracking`, {
+            const rpcRes = await fetchWithRetry(`${SUPABASE_URL}/rpc/get_public_order_tracking`, {
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_KEY,
@@ -947,7 +1061,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ p_query: cleanId })
-            }, 8000);
+            }, 15000, 1);
 
             let payload = null;
             try {
@@ -999,6 +1113,7 @@
                     safeReplaceState({ orderId: order.id }, '', targetPath);
                 }
             }
+            updateExternalBrowserIntentLink();
 
             try {
                 renderUI(order, itemsData, pageData);
@@ -2237,7 +2352,7 @@ ${orderTrackingUrl}`;
         let networkError = false;
         let unlockPayload = null;
         try {
-            const verifyRes = await fetchWithTimeout(`${SUPABASE_URL}/rpc/unlock_public_order_media`, {
+            const verifyRes = await fetchWithRetry(`${SUPABASE_URL}/rpc/unlock_public_order_media`, {
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_KEY,
@@ -2245,7 +2360,7 @@ ${orderTrackingUrl}`;
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ p_order_id: Number(order.id), p_phone: normalizedPhone })
-            }, 8000);
+            }, 15000, 1);
 
             try {
                 unlockPayload = await verifyRes.json();
@@ -2579,6 +2694,7 @@ ${orderTrackingUrl}`;
     });
 
     // --- بدء التشغيل الذكي ---
+    initInAppBrowserBanner();
     const currentOrderId = getOrderIdFromUrl();
     
     if (currentOrderId) {
