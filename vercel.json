@@ -41,6 +41,22 @@
   ],
   "rewrites": [
     {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/terms-of-use",
+      "destination": "/terms.html"
+    },
+    {
       "source": "/order/:id*",
       "destination": "/index.html"
     },
@@ -49,7 +65,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!.well-known).*)",
+      "source": "/((?!\\.well-known|privacy\\.html|terms\\.html).*)",
       "destination": "/index.html"
     }
   ]
